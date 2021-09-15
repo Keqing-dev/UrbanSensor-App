@@ -1,3 +1,5 @@
+import 'package:urbansensor/src/models/user.dart';
+
 class LoginRequest {
   LoginRequest({
     required this.email,
@@ -26,12 +28,12 @@ class LoginResponse {
   });
 
   bool success;
-  Data? data;
+  User? data;
   String? message;
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) => LoginResponse(
     success: json["success"],
-    data: Data.fromJson(json["data"]),
+    data: User.fromJson(json["data"]),
     message: json["message"],
   );
 
@@ -42,45 +44,6 @@ class LoginResponse {
   };
 }
 
-class Data {
-  Data({
-    required this.id,
-    required this.email,
-    required this.name,
-    required this.lastName,
-    required this.profession,
-    required this.plan,
-    required this.token,
-  });
-
-  String id;
-  String email;
-  String name;
-  String lastName;
-  String profession;
-  Plan plan;
-  String token;
-
-  factory Data.fromJson(Map<String, dynamic> json) => Data(
-    id: json["id"],
-    email: json["email"],
-    name: json["name"],
-    lastName: json["lastName"],
-    profession: json["profession"],
-    plan: Plan.fromJson(json["plan"]),
-    token: json["token"],
-  );
-
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "email": email,
-    "name": name,
-    "lastName": lastName,
-    "profession": profession,
-    "plan": plan.toJson(),
-    "token": token,
-  };
-}
 
 class Plan {
   Plan({

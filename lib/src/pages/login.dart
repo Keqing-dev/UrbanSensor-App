@@ -11,7 +11,6 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-
   ApiAuth api = ApiAuth();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -25,7 +24,6 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: SafeArea(
@@ -76,7 +74,7 @@ class _LoginState extends State<Login> {
                     Button(
                       content: Text("Ingresar"),
                       onPressed: () {
-                        _doLogin(emailController.text, passwordController.text);
+                        _doLogin(emailController.text, passwordController.text,context);
                       },
                     ),
                     SizedBox(height: 32.0),
@@ -114,10 +112,10 @@ class _LoginState extends State<Login> {
     );
   }
 
-  _doLogin(String email, String password) async {
+  _doLogin(String email, String password,BuildContext context) async {
     print(email);
-    bool isLogged = await api.login(email, password);
-    if(isLogged) {
+    bool isLogged = await api.login(email, password,context);
+    if (isLogged) {
       Navigator.pushReplacementNamed(context, "home");
     } else {
       print('ups');

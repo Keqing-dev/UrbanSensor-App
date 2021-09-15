@@ -1,35 +1,66 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:urbansensor/src/models/project.dart';
+import 'package:urbansensor/src/models/report.dart';
+import 'package:urbansensor/src/models/user.dart';
+import 'package:urbansensor/src/preferences/user_preferences.dart';
 import 'package:urbansensor/src/services/api.dart';
 import 'package:urbansensor/src/services/api_project.dart';
+import 'package:urbansensor/src/services/api_report.dart';
 import 'package:urbansensor/src/utils/loading_indicators_c.dart';
 import 'package:urbansensor/src/utils/palettes.dart';
 import 'package:urbansensor/src/utils/text_style_c.dart';
 import 'package:urbansensor/src/widgets/cards/project_card.dart';
+import 'package:urbansensor/src/widgets/cards/report_card.dart';
 
-class Dashboard extends StatelessWidget {
+class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    ApiProject apiProject = ApiProject();
+  State<Dashboard> createState() => _DashboardState();
+}
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+class _DashboardState extends State<Dashboard> {
+  @override
+  Widget build(BuildContext context) {
+    Api api = Api();
+    ApiProject apiProject = ApiProject();
+    ApiReport apiReport = ApiReport();
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        setState(() {});
+      },
       child: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
           _profileInfo(context),
-          _label(context: context, title: 'Proyectos'),
+          _label(
+            context: context,
+            title: 'Proyectos',
+            iconData: Icons.scatter_plot_outlined,
+          ),
           Container(
               margin: const EdgeInsets.symmetric(vertical: 20),
               child: _latestProject(apiProject)),
+          _label(
+            context: context,
+            title: 'Reportes',
+            iconData: Icons.analytics_outlined,
+          ),
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 20),
+            child: _latestReports(apiReport),
+          ),
         ],
       ),
     );
   }
 
   Widget _profileInfo(BuildContext context) {
+    User? user = UserPreferences().getUser;
+
+    print(user?.name);
     final _caption = Theme.of(context)
         .textTheme
         .caption!
@@ -43,7 +74,9 @@ class Dashboard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: CachedNetworkImage(
-                imageUrl: 'https://picsum.photos/800',
+                imageUrl: user?.thumbnails?.lg != null
+                    ? '${user?.thumbnails?.lg}'
+                    : 'https://thispersondoesnotexist.com/image',
                 errorWidget: (context, url, error) => const Text('Error'),
                 placeholder: (context, url) => LoadingIndicatorsC.ballScale,
                 height: 100,
@@ -59,10 +92,10 @@ class Dashboard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Nombre Completo',
+                    Text('${user?.name} ${user?.lastName}',
                         style: TextStyleC.bodyText1(
                             context: context, fontWeight: 'semi')),
-                    Text('Plan universitario', style: _caption),
+                    Text('Plan ${user?.plan?.name}', style: _caption),
                     Text('13 Proyectos', style: _caption),
                     Text('15 Reportes', style: _caption),
                   ],
@@ -75,13 +108,16 @@ class Dashboard extends StatelessWidget {
     );
   }
 
-  Widget _label({required BuildContext context, required String title}) {
+  Widget _label(
+      {required BuildContext context,
+      required String title,
+      required IconData iconData}) {
     return Row(
       children: [
         Container(
           margin: const EdgeInsets.only(right: 10),
           child: Icon(
-            Icons.scatter_plot_outlined,
+            iconData,
             color: Palettes.gray3,
             size: 30,
           ),
@@ -107,7 +143,25 @@ class Dashboard extends StatelessWidget {
                 List<Project>? projects = snapshot.data;
                 return _projectList(projects);
               } else if (snapshot.hasError) {
-                return const Icon(Icons.error_outline);
+                return Expanded(
+                  child: Container(
+                    height: 220,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Text(
+                          'No cuentas con proyectos aun, crea uno y empieza a compartir tus reportes',
+                          textAlign: TextAlign.center,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Icon(Icons.nearby_error, size: 40),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
               } else {
                 return LoadingIndicatorsC.ballRotateChaseExpanded;
               }
@@ -156,6 +210,41 @@ class Dashboard extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+
+  Widget _latestReports(ApiReport api) {
+    return FutureBuilder(
+        future: api.getLatestReport(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasData) {
+            List<Report>? reports = snapshot.data;
+            return _reportList(reports);
+          } else if (snapshot.hasError) {
+            return Row(
+              children: const [
+                Text('No cuentas con reportes.'),
+              ],
+            );
+          } else {
+            return LoadingIndicatorsC.ballRotateChase;
+          }
+        });
+  }
+
+  Widget _reportList(List<Report>? reports) {
+    return ListView.builder(
+      padding: EdgeInsets.zero,
+      itemCount: reports?.length,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      scrollDirection: Axis.vertical,
+      itemBuilder: (BuildContext context, int index) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 10, right: 10),
+          child: ReportCard(report: reports?[index]),
+        );
+      },
     );
   }
 }

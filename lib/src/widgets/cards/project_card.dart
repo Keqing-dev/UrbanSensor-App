@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:urbansensor/src/models/project.dart';
 import 'package:urbansensor/src/utils/palettes.dart';
+import 'package:urbansensor/src/utils/shadow.dart';
 
 class ProjectCard extends StatelessWidget {
   const ProjectCard({Key? key, required this.project}) : super(key: key);
@@ -14,6 +15,7 @@ class ProjectCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(8),
+            boxShadow: shadow(),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
           child: Row(

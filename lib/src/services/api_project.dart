@@ -7,9 +7,9 @@ import 'package:urbansensor/src/services/api.dart';
 import 'package:urbansensor/src/streams/project_stream.dart';
 
 class ApiProject {
+
   final String _url = Api().url;
   final String _domain = Api().domain;
-  final _headersTk = Api().headersTk;
 
   int _page = 1;
   int _searchPage = 1;
@@ -23,6 +23,8 @@ class ApiProject {
   final ProjectStream _stream = ProjectStream();
 
   Future getLatestProject() async {
+    final _headersTk = await Api().getHeadersTk();
+
     final res =
         await http.get(Uri.parse('$_url/project/latest'), headers: _headersTk);
 
@@ -36,6 +38,8 @@ class ApiProject {
   }
 
   Future getAllMyProjects() async {
+    final _headersTk = await Api().getHeadersTk();
+
     _stream.projectLoadedSink(false);
 
     final res = await http.get(Uri.parse('$_url/project?page=$_page'),
@@ -63,6 +67,8 @@ class ApiProject {
   }
 
   Future searchMyProjects({required String name}) async {
+    final _headersTk = await Api().getHeadersTk();
+
     _isSearching = true;
     _stream.projectLoadedSink(false);
 
@@ -126,4 +132,6 @@ class ApiProject {
   bool get isSearchEmpty => _isSearchEmpty;
 
   bool get isSearching => _isSearching;
+
+  int get page => _page;
 }

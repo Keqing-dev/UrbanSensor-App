@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:urbansensor/src/content/dashboard.dart';
 import 'package:urbansensor/src/pages/projects_page.dart';
+import 'package:urbansensor/src/preferences/user_preferences.dart';
 import 'package:urbansensor/src/providers/navigation_provider.dart';
 import 'package:urbansensor/src/utils/palettes.dart';
 import 'package:urbansensor/src/widgets/navigators/bottom_navigation_bar.dart';
@@ -21,7 +22,12 @@ class Home extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             InkWell(
-              onTap: () {},
+              onTap: () {
+                UserPreferences userPrefs = UserPreferences();
+                userPrefs.clear();
+                Navigator.pushReplacementNamed(context, 'login');
+
+              },
               child: Icon(
                 Icons.menu,
                 color: Palettes.lightBlue,

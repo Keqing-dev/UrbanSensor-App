@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:urbansensor/src/models/project.dart';
 import 'package:urbansensor/src/services/api_project.dart';
@@ -26,7 +25,6 @@ class _ProjectsPageState extends State<ProjectsPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     apiProject.getAllMyProjects();
 
@@ -56,7 +54,10 @@ class _ProjectsPageState extends State<ProjectsPage> {
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
-      onRefresh: () => apiProject.refreshAllMyProjects(),
+      onRefresh: () async {
+        apiSuccess = true;
+        apiProject.refreshAllMyProjects();
+      },
       edgeOffset: 20,
       child: Column(
         children: [
@@ -116,7 +117,9 @@ class _ProjectsPageState extends State<ProjectsPage> {
                 ? apiProject.isSearchEmpty
                     ? 'No hemos podido encontrar '
                     : 'Buscando...'
-                : 'No cuentas con proyectos aun, crea uno y empieza a compartir tus reportes',
+                : !apiSuccess
+                    ? 'No cuentas con proyectos aun, crea uno y empieza a compartir tus reportes'
+                    : '',
             textAlign: TextAlign.center,
           ));
   }
