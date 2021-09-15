@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
           canvasColor: Palettes.gray5,
           textTheme: GoogleFonts.montserratTextTheme(),
         ),
-        initialRoute: 'home',
+        initialRoute: 'login',
         routes: {
           'home': (BuildContext context) => const Home(),
           'project': (BuildContext context) => const ProjectPage(),

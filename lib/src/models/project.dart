@@ -3,14 +3,13 @@ class ProjectRes {
   List<Project>? _content;
 
   bool? get success => _success;
+
   List<Project>? get content => _content;
 
-  ProjectRes({
-      bool? success, 
-      List<Project>? content}){
+  ProjectRes({bool? success, List<Project>? content}) {
     _success = success;
     _content = content;
-}
+  }
 
   ProjectRes.fromJson(dynamic json) {
     _success = json['success'];
@@ -30,7 +29,6 @@ class ProjectRes {
     }
     return map;
   }
-
 }
 
 class Project {
@@ -40,20 +38,19 @@ class Project {
   int? _reportsCount;
 
   String? get id => _id;
+
   String? get name => _name;
+
   String? get createdAt => _createdAt;
+
   int? get reportsCount => _reportsCount;
 
-  Project({
-      String? id, 
-      String? name, 
-      String? createdAt, 
-      int? reportsCount}){
+  Project({String? id, String? name, String? createdAt, int? reportsCount}) {
     _id = id;
     _name = name;
     _createdAt = createdAt;
     _reportsCount = reportsCount;
-}
+  }
 
   Project.fromJson(dynamic json) {
     _id = json['id'];
@@ -70,5 +67,4 @@ class Project {
     map['reportsCount'] = _reportsCount;
     return map;
   }
-
 }

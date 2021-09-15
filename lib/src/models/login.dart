@@ -1,5 +1,5 @@
-class Login {
-  Login({
+class LoginRequest {
+  LoginRequest({
     required this.email,
     required this.password,
   });
@@ -7,7 +7,7 @@ class Login {
   String email;
   String password;
 
-  factory Login.fromJson(Map<String, dynamic> json) => Login(
+  factory LoginRequest.fromJson(Map<String, dynamic> json) => LoginRequest(
     email: json["email"],
     password: json["password"],
   );

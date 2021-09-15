@@ -1,9 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:urbansensor/src/services/api_auth.dart';
 import 'package:urbansensor/src/widgets/button.dart';
 import 'package:urbansensor/src/widgets/input.dart';
 
-class Login extends StatelessWidget {
+class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
+
+  @override
+  State<Login> createState() => _LoginState();
+}
+
+class _LoginState extends State<Login> {
+
+  ApiAuth api = ApiAuth();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,12 +60,14 @@ class Login extends StatelessWidget {
                     ),
                     SizedBox(height: 64.0),
                     Input(
+                      controller: emailController,
                       label: "Email",
                       placeholder: "example@example.com",
                       keyboardType: TextInputType.emailAddress,
                     ),
                     SizedBox(height: 32.0),
                     Input(
+                      controller: passwordController,
                       label: "Contraseña",
                       placeholder: "••••••••",
                       isPassword: true,
@@ -56,8 +76,7 @@ class Login extends StatelessWidget {
                     Button(
                       content: Text("Ingresar"),
                       onPressed: () {
-                        // print("xd");
-                        // auth.login("email", "password");
+                        _doLogin(emailController.text, passwordController.text);
                       },
                     ),
                     SizedBox(height: 32.0),
@@ -93,5 +112,15 @@ class Login extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  _doLogin(String email, String password) async {
+    print(email);
+    bool isLogged = await api.login(email, password);
+    if(isLogged) {
+      Navigator.pushReplacementNamed(context, "home");
+    } else {
+      print('ups');
+    }
   }
 }

@@ -6,12 +6,14 @@ class Input extends StatefulWidget {
   final String placeholder;
   final bool isPassword;
   final TextInputType? keyboardType;
+  final TextEditingController? controller;
 
   const Input({Key? key,
     required this.label,
     required this.placeholder,
     this.isPassword = false,
-    this.keyboardType,})
+    this.keyboardType,
+    this.controller,})
       : super(key: key);
 
   @override
@@ -42,6 +44,7 @@ class _InputState extends State<Input> {
             boxShadow: shadow(),
           ),
           child: TextField(
+            controller: widget.controller,
             keyboardType: widget.keyboardType,
             obscureText: widget.isPassword ? !_passwordVisible : false,
             style: Theme
