@@ -39,15 +39,16 @@ class _DashboardState extends State<Dashboard> {
             context: context,
             title: 'Proyectos',
             iconData: Icons.scatter_plot_outlined,
+            info: '',
           ),
           Container(
               margin: const EdgeInsets.symmetric(vertical: 20),
               child: _latestProject(apiProject)),
           _label(
-            context: context,
-            title: 'Reportes',
-            iconData: Icons.analytics_outlined,
-          ),
+              context: context,
+              title: 'Reportes',
+              iconData: Icons.analytics_outlined,
+              info: 'Últimos 10 reportes'),
           Container(
             margin: const EdgeInsets.symmetric(vertical: 20),
             child: _latestReports(apiReport),
@@ -108,24 +109,38 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
-  Widget _label(
-      {required BuildContext context,
-      required String title,
-      required IconData iconData}) {
+  Widget _label({
+    required BuildContext context,
+    required String title,
+    required IconData iconData,
+    String? info,
+  }) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Container(
-          margin: const EdgeInsets.only(right: 10),
-          child: Icon(
-            iconData,
-            color: Palettes.gray3,
-            size: 30,
-          ),
+        Row(
+          children: [
+            Container(
+              margin: const EdgeInsets.only(right: 10),
+              child: Icon(
+                iconData,
+                color: Palettes.gray2,
+                size: 30,
+              ),
+            ),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.bodyText1!.copyWith(
+                  fontWeight: FontWeight.w500,
+                  color: Palettes.gray2,
+                  fontSize: 18),
+            ),
+          ],
         ),
         Text(
-          title,
+          '$info',
           style: Theme.of(context).textTheme.bodyText1!.copyWith(
-              fontWeight: FontWeight.w500, color: Palettes.gray3, fontSize: 18),
+              fontWeight: FontWeight.w500, color: Palettes.gray2, fontSize: 14),
         ),
       ],
     );
@@ -241,7 +256,7 @@ class _DashboardState extends State<Dashboard> {
       scrollDirection: Axis.vertical,
       itemBuilder: (BuildContext context, int index) {
         return Padding(
-          padding: const EdgeInsets.only(bottom: 10, right: 10),
+          padding: const EdgeInsets.only(bottom: 10),
           child: ReportCard(report: reports?[index]),
         );
       },

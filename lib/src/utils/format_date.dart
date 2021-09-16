@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
 
 class FormatDate {
@@ -6,9 +7,11 @@ class FormatDate {
   }
 
   static String clock(String? date) {
+    var parsedDate = DateTime.parse(date!);
 
-    var parsedDate = DateTime.parse(date!).toUtc();
+    var dateTime = DateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedDate.toString(), true);
+    var dateLocal = dateTime.toLocal();
 
-    return Jiffy(parsedDate).format("hh:mm");
+    return Jiffy('$dateLocal').format("HH:mm");
   }
 }
