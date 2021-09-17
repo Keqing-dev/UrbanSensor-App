@@ -7,14 +7,17 @@ class Input extends StatefulWidget {
   final bool isPassword;
   final TextInputType? keyboardType;
   final TextEditingController? controller;
+  final Function? func;
 
-  const Input({Key? key,
+  const Input({
+    Key? key,
     required this.label,
     required this.placeholder,
     this.isPassword = false,
     this.keyboardType,
-    this.controller,})
-      : super(key: key);
+    this.controller,
+    this.func,
+  }) : super(key: key);
 
   @override
   _InputState createState() => _InputState();
@@ -30,8 +33,7 @@ class _InputState extends State<Input> {
       children: [
         Text(
           widget.label,
-          style: Theme
-              .of(context)
+          style: Theme.of(context)
               .textTheme
               .bodyText1!
               .copyWith(fontWeight: FontWeight.w500),
@@ -44,17 +46,21 @@ class _InputState extends State<Input> {
             boxShadow: shadow(),
           ),
           child: TextField(
+            onChanged: (value) {
+              if (widget.func != null) {
+                widget.func!(value);
+              }
+            },
             controller: widget.controller,
             keyboardType: widget.keyboardType,
             obscureText: widget.isPassword ? !_passwordVisible : false,
-            style: Theme
-                .of(context)
+            style: Theme.of(context)
                 .textTheme
                 .bodyText2!
                 .copyWith(fontWeight: FontWeight.w500),
             decoration: InputDecoration(
               contentPadding:
-              const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
               fillColor: Colors.white,
               filled: true,
               border: OutlineInputBorder(
@@ -68,15 +74,15 @@ class _InputState extends State<Input> {
               hintText: widget.placeholder,
               suffixIcon: widget.isPassword
                   ? IconButton(
-                icon: Icon(_passwordVisible
-                    ? Icons.visibility_off_rounded
-                    : Icons.visibility_rounded),
-                onPressed: () {
-                  setState(() {
-                    _passwordVisible = !_passwordVisible;
-                  });
-                },
-              )
+                      icon: Icon(_passwordVisible
+                          ? Icons.visibility_off_rounded
+                          : Icons.visibility_rounded),
+                      onPressed: () {
+                        setState(() {
+                          _passwordVisible = !_passwordVisible;
+                        });
+                      },
+                    )
                   : null,
             ),
           ),

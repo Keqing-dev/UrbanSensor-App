@@ -15,21 +15,33 @@ class ProjectStream{
 
   ProjectStream._();
 
+  StreamController<List<Project>?> _projectsStreamController =
+      StreamController.broadcast();
 
-  StreamController<List<Project>?> _projectsStreamController = StreamController.broadcast();
-  Function(List<Project>?) get projectsSink => _projectsStreamController.sink.add;
+  Function(List<Project>?) get projectsSink =>
+      _projectsStreamController.sink.add;
+
   Stream<List<Project>?> get projectsStream => _projectsStreamController.stream;
 
+  StreamController<int?> _maxItemsStreamController =
+      StreamController.broadcast();
 
-  StreamController<bool> _porjectsLoadedStreamController = StreamController.broadcast();
-  Function(bool) get projectLoadedSink => _porjectsLoadedStreamController.sink.add;
-  Stream<bool> get projectLoadedStream => _porjectsLoadedStreamController.stream;
+  Function(int?) get maxItemsSink => _maxItemsStreamController.sink.add;
 
+  Stream<int?> get maxItemsStream => _maxItemsStreamController.stream;
 
+  StreamController<bool> _porjectsLoadedStreamController =
+      StreamController.broadcast();
 
+  Function(bool) get projectLoadedSink =>
+      _porjectsLoadedStreamController.sink.add;
 
-  void disposeStream(){
+  Stream<bool> get projectLoadedStream =>
+      _porjectsLoadedStreamController.stream;
+
+  void disposeStream() {
     _projectsStreamController.close();
+    _maxItemsStreamController.close();
     _porjectsLoadedStreamController.close();
   }
 

@@ -1,13 +1,13 @@
+import 'dart:convert';
+
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:urbansensor/src/models/project.dart';
 import 'package:urbansensor/src/models/projects_pagination.dart';
-import 'dart:convert';
-
 import 'package:urbansensor/src/services/api.dart';
 import 'package:urbansensor/src/streams/project_stream.dart';
 
 class ApiProject {
-
   final String _url = Api().url;
   final String _domain = Api().domain;
 
@@ -22,13 +22,17 @@ class ApiProject {
   List<Project>? _searchedProjects = [];
   final ProjectStream _stream = ProjectStream();
 
-  Future getLatestProject() async {
+  Future getLatestProject(BuildContext context) async {
     final _headersTk = await Api().getHeadersTk();
 
     final res =
-        await http.get(Uri.parse('$_url/project/latest'), headers: _headersTk);
+    await http.get(Uri.parse('$_url/project/latest'), headers: _headersTk);
 
     print('getLatestProject() STATUS CODE: ${res.statusCode}');
+
+    if (res.statusCode != 200) {
+      return Future.error('Sin proyectos');
+    }
 
     ProjectRes projectRes = ProjectRes.fromJson(json.decode(res.body));
 
@@ -56,8 +60,11 @@ class ApiProject {
     }
     _page++;
 
-    List<Project>? projects =
-        ProjectPaginationRes.fromJson(json.decode(res.body)).content;
+    ProjectPaginationRes? projectRes =
+    ProjectPaginationRes.fromJson(json.decode(res.body));
+
+    List<Project>? projects = projectRes.content;
+    _stream.maxItemsSink(projectRes.maxItems);
 
     _allProjects?.addAll(projects!);
     _stream.projectsSink(_allProjects);
@@ -68,7 +75,6 @@ class ApiProject {
 
   Future searchMyProjects({required String name}) async {
     final _headersTk = await Api().getHeadersTk();
-
     _isSearching = true;
     _stream.projectLoadedSink(false);
 
@@ -78,24 +84,33 @@ class ApiProject {
     };
     final uri = Uri.https(_domain, '/project/search', queryParameters);
 
-    print(uri);
     final res = await http.get(uri, headers: _headersTk);
 
     print('searchMyProjects() STATUS CODE: ${res.statusCode}');
 
+    print(_searchPage);
     if (res.statusCode != 200) {
-      if (_page == 1) {
+      if (_searchPage == 1) {
         _stream.projectsSink([]);
       } else {}
+      _stream.maxItemsSink(0);
       _isSearchEmpty = true;
       _stream.projectLoadedSink(true);
       return false;
     }
+
+    if (_searchPage == 1) {
+      _searchedProjects = [];
+      _stream.projectsSink([]);
+    }
     _searchPage++;
 
-    List<Project>? projects =
-        ProjectPaginationRes.fromJson(json.decode(res.body)).content;
+    ProjectPaginationRes? projectRes =
+    ProjectPaginationRes.fromJson(json.decode(res.body));
 
+    List<Project>? projects = projectRes.content;
+
+    _stream.maxItemsSink(projectRes.maxItems);
     _searchedProjects?.addAll(projects!);
     _stream.projectsSink(_searchedProjects);
     _stream.projectLoadedSink(true);
@@ -107,6 +122,27 @@ class ApiProject {
     cleanSearch();
     cleanProjects();
     await getAllMyProjects();
+  }
+
+  Future createProject(
+      {required String name, required BuildContext context}) async {
+    final _headersTk = await Api().getHeadersTk();
+
+
+    final res = await http.post(Uri.parse('$_url/project'),
+        headers: _headersTk, body: jsonEncode({"name": name}));
+
+    print('createProject() STATUS CODE: ${res.statusCode}');
+
+    if (res.statusCode != 200) {
+      return false;
+    }
+
+    Project? project = ProjectRes
+        .fromJson(json.decode(res.body))
+        .data;
+
+    return project;
   }
 
   void cleanSearch() {

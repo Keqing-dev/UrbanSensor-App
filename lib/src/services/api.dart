@@ -39,17 +39,23 @@ class Api {
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     };
+  }
 
+  Future getHeadersTkMultiPart() async {
+    SharedPreferences _preferences = await SharedPreferences.getInstance();
+    String? token = _preferences.getString('token');
+
+    return {
+      'Content-Type': 'multipart/form-data;',
+      'Authorization': 'Bearer $token',
+    };
   }
 
   Future refreshDashboardPage(BuildContext context) async {
     User user = UserPreferences().getUser as User;
-
     ApiProject apiProject = ApiProject();
     ApiAuth apiAuth = ApiAuth();
 
-    await apiProject.getLatestProject();
-
-
+    await apiProject.getLatestProject(context);
   }
 }

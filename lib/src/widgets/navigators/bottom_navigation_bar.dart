@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:unicons/unicons.dart';
 import 'package:urbansensor/src/providers/navigation_provider.dart';
 
 class BottomNavigationBarC extends StatelessWidget {
@@ -21,7 +22,7 @@ class BottomNavigationBarC extends StatelessWidget {
           onTap: (value) => navigationProvider.selectedIndex = value,
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-                icon: Icon(Icons.dashboard), label: 'Dashboard'),
+                icon: Icon(UniconsLine.estate), label: 'Inicio'),
             BottomNavigationBarItem(
                 icon: Icon(Icons.folder_open), label: 'Proyectos'),
             BottomNavigationBarItem(

@@ -1,17 +1,14 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:unicons/unicons.dart';
 import 'package:urbansensor/src/models/project.dart';
 import 'package:urbansensor/src/models/report.dart';
-import 'package:urbansensor/src/models/user.dart';
-import 'package:urbansensor/src/preferences/user_preferences.dart';
-import 'package:urbansensor/src/services/api.dart';
 import 'package:urbansensor/src/services/api_project.dart';
 import 'package:urbansensor/src/services/api_report.dart';
 import 'package:urbansensor/src/utils/loading_indicators_c.dart';
 import 'package:urbansensor/src/utils/palettes.dart';
-import 'package:urbansensor/src/utils/text_style_c.dart';
 import 'package:urbansensor/src/widgets/cards/project_card.dart';
 import 'package:urbansensor/src/widgets/cards/report_card.dart';
+import 'package:urbansensor/src/widgets/profile_info.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -21,90 +18,43 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  ApiProject apiProject = ApiProject();
+  ApiReport apiReport = ApiReport();
+
   @override
   Widget build(BuildContext context) {
-    Api api = Api();
-    ApiProject apiProject = ApiProject();
-    ApiReport apiReport = ApiReport();
-
     return RefreshIndicator(
       onRefresh: () async {
         setState(() {});
       },
       child: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
-          _profileInfo(context),
-          _label(
-            context: context,
-            title: 'Proyectos',
-            iconData: Icons.scatter_plot_outlined,
-            info: '',
+          const ProfileInfo(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: _label(
+              context: context,
+              title: 'Proyectos',
+              iconData: UniconsLine.channel,
+              info: '',
+            ),
           ),
           Container(
-              margin: const EdgeInsets.symmetric(vertical: 20),
-              child: _latestProject(apiProject)),
-          _label(
-              context: context,
-              title: 'Reportes',
-              iconData: Icons.analytics_outlined,
-              info: 'Últimos 10 reportes'),
+              margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              child: _latestProject(apiProject, context)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: _label(
+                context: context,
+                title: 'Reportes',
+                iconData: UniconsLine.chart,
+                info: 'Últimos 10 reportes'),
+          ),
           Container(
-            margin: const EdgeInsets.symmetric(vertical: 20),
+            margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             child: _latestReports(apiReport),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _profileInfo(BuildContext context) {
-    User? user = UserPreferences().getUser;
-
-    print(user?.name);
-    final _caption = Theme.of(context)
-        .textTheme
-        .caption!
-        .copyWith(fontWeight: FontWeight.w300, color: Palettes.gray3);
-
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 25),
-      child: IntrinsicHeight(
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: CachedNetworkImage(
-                imageUrl: user?.thumbnails?.lg != null
-                    ? '${user?.thumbnails?.lg}'
-                    : 'https://thispersondoesnotexist.com/image',
-                errorWidget: (context, url, error) => const Text('Error'),
-                placeholder: (context, url) => LoadingIndicatorsC.ballScale,
-                height: 100,
-                width: 100,
-                fit: BoxFit.cover,
-                alignment: Alignment.center,
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('${user?.name} ${user?.lastName}',
-                        style: TextStyleC.bodyText1(
-                            context: context, fontWeight: 'semi')),
-                    Text('Plan ${user?.plan?.name}', style: _caption),
-                    Text('13 Proyectos', style: _caption),
-                    Text('15 Reportes', style: _caption),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -124,16 +74,16 @@ class _DashboardState extends State<Dashboard> {
               margin: const EdgeInsets.only(right: 10),
               child: Icon(
                 iconData,
-                color: Palettes.gray2,
+                color: Palettes.lightBlue,
                 size: 30,
               ),
             ),
             Text(
               title,
-              style: Theme.of(context).textTheme.bodyText1!.copyWith(
-                  fontWeight: FontWeight.w500,
-                  color: Palettes.gray2,
-                  fontSize: 18),
+              style: Theme.of(context).textTheme.subtitle1!.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: Palettes.gray2,
+                  ),
             ),
           ],
         ),
@@ -146,16 +96,17 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
-  Widget _latestProject(ApiProject api) {
+  Widget _latestProject(ApiProject api, BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         FutureBuilder(
-            future: api.getLatestProject(),
+            future: api.getLatestProject(context),
             builder: (BuildContext context, AsyncSnapshot snapshot) {
               if (snapshot.hasData) {
                 List<Project>? projects = snapshot.data;
+
                 return _projectList(projects);
               } else if (snapshot.hasError) {
                 return Expanded(
@@ -164,14 +115,18 @@ class _DashboardState extends State<Dashboard> {
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Text(
+                      children: [
+                        const Text(
                           'No cuentas con proyectos aun, crea uno y empieza a compartir tus reportes',
                           textAlign: TextAlign.center,
                         ),
                         Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Icon(Icons.nearby_error, size: 40),
+                          padding: const EdgeInsets.all(8.0),
+                          child: Icon(
+                            UniconsLine.robot,
+                            size: 40,
+                            color: Palettes.green2,
+                          ),
                         ),
                       ],
                     ),
@@ -185,7 +140,9 @@ class _DashboardState extends State<Dashboard> {
           borderRadius: BorderRadius.circular(8),
           color: Palettes.lightBlue,
           child: InkWell(
-            onTap: () {},
+            onTap: () {
+              Navigator.pushNamed(context, 'createProject');
+            },
             borderRadius: BorderRadius.circular(8),
             child: Container(
               decoration: BoxDecoration(

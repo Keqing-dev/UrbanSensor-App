@@ -55,82 +55,70 @@ class _ProjectPageState extends State<ProjectPage> {
     });
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      extendBody: true,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        leading: InkWell(
-          onTap: () {
-            Navigator.pop(context);
-          },
-          child: Icon(
-            Icons.arrow_left,
-            size: 50,
-            color: Palettes.rose,
-          ),
-        ),
-        title: Text('Volver',
-            style: Theme.of(context).textTheme.bodyText2!.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: Palettes.gray2,
-                )),
-        titleSpacing: 0,
-      ),
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: Image.asset(
-              'assets/img/background.png',
-              fit: BoxFit.cover,
+        extendBodyBehindAppBar: true,
+        extendBody: true,
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          leading: InkWell(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Icon(
+              Icons.arrow_left,
+              size: 50,
+              color: Palettes.rose,
             ),
           ),
-          SafeArea(
-            child: Center(
-              child: Column(
-                children: [
-                  Text(
-                    '${project.name}',
-                    style: Theme.of(context).textTheme.subtitle1!.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: Palettes.gray2,
-                        ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.analytics_outlined,
+          title: Text('Volver',
+              style: Theme.of(context).textTheme.bodyText2!.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Palettes.gray2,
+                  )),
+          titleSpacing: 0,
+        ),
+        body: SafeArea(
+          child: Center(
+            child: Column(
+              children: [
+                Text(
+                  '${project.name}',
+                  style: Theme.of(context).textTheme.subtitle1!.copyWith(
+                        fontWeight: FontWeight.w600,
                         color: Palettes.gray2,
                       ),
-                      Text('${project.reportsCount} Reportes'),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.analytics_outlined,
+                      color: Palettes.gray2,
+                    ),
+                    Text('${project.reportsCount} Reportes'),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16, right: 16, top: 30),
+                  child: Row(
+                    children: [
+                      _label(
+                          context: context,
+                          iconData: Icons.analytics_outlined,
+                          title: 'Reportes'),
                     ],
                   ),
-                  Padding(
-                    padding:
-                        const EdgeInsets.only(left: 16, right: 16, top: 30),
-                    child: Row(
-                      children: [
-                        _label(
-                            context: context,
-                            iconData: Icons.analytics_outlined,
-                            title: 'Reportes'),
-                      ],
-                    ),
+                ),
+                Expanded(
+                  child: Container(
+                    margin: EdgeInsets.only(top: 15),
+                    child: _scrollable(),
                   ),
-                  Expanded(
-                    child: Container(
-                      margin: EdgeInsets.only(top: 15),
-                      child: _scrollable(),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          )
-        ],
-      ),
-    );
+          ),
+        ));
   }
 
   Widget _scrollable() {

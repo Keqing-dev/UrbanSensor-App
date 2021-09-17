@@ -1,14 +1,16 @@
 class ProjectRes {
   bool? _success;
   List<Project>? _content;
+  Project? _data;
 
   bool? get success => _success;
 
   List<Project>? get content => _content;
 
-  ProjectRes({bool? success, List<Project>? content}) {
+  ProjectRes({bool? success, List<Project>? content, Project? data}) {
     _success = success;
     _content = content;
+    _data = data;
   }
 
   ProjectRes.fromJson(dynamic json) {
@@ -18,6 +20,9 @@ class ProjectRes {
       json['content'].forEach((v) {
         _content?.add(Project.fromJson(v));
       });
+    }
+    if (json['data'] != null) {
+      _data = Project.fromJson(json['data']);
     }
   }
 
@@ -29,6 +34,8 @@ class ProjectRes {
     }
     return map;
   }
+
+  Project? get data => _data;
 }
 
 class Project {

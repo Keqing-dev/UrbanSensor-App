@@ -43,6 +43,9 @@ dependencies:
   jiffy: ^4.1.0
   intl: ^0.17.0
   timezone: ^0.8.0
+  unicons: ^2.0.1
+  image_picker: ^0.8.4+1
+  permission_handler: ^8.1.6
 
 dev_dependencies:
   flutter_test:
