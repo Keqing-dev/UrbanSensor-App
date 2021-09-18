@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:provider/provider.dart';
@@ -24,6 +25,9 @@ void main() async {
   );
 
   WidgetsFlutterBinding.ensureInitialized();
+  await FlutterDownloader.initialize(
+      debug: false // optional: set false to disable printing logs to console
+      );
   final userPreferences = UserPreferences();
   await userPreferences.initPreferences();
   await Jiffy.locale("es");

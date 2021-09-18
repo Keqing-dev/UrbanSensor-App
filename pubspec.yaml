@@ -46,6 +46,8 @@ dependencies:
   unicons: ^2.0.1
   image_picker: ^0.8.4+1
   permission_handler: ^8.1.6
+  path_provider: ^2.0.5
+  flutter_downloader: ^1.7.0
 
 dev_dependencies:
   flutter_test:

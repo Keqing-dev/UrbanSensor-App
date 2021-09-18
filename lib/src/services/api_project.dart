@@ -1,7 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:urbansensor/src/models/project.dart';
 import 'package:urbansensor/src/models/projects_pagination.dart';
 import 'package:urbansensor/src/services/api.dart';
@@ -26,7 +29,7 @@ class ApiProject {
     final _headersTk = await Api().getHeadersTk();
 
     final res =
-    await http.get(Uri.parse('$_url/project/latest'), headers: _headersTk);
+        await http.get(Uri.parse('$_url/project/latest'), headers: _headersTk);
 
     print('getLatestProject() STATUS CODE: ${res.statusCode}');
 
@@ -61,10 +64,10 @@ class ApiProject {
     _page++;
 
     ProjectPaginationRes? projectRes =
-    ProjectPaginationRes.fromJson(json.decode(res.body));
+        ProjectPaginationRes.fromJson(json.decode(res.body));
 
     List<Project>? projects = projectRes.content;
-    _stream.maxItemsSink(projectRes.maxItems);
+    _stream.maxItemsSink(projectRes.paging?.maxItems);
 
     _allProjects?.addAll(projects!);
     _stream.projectsSink(_allProjects);
@@ -106,11 +109,11 @@ class ApiProject {
     _searchPage++;
 
     ProjectPaginationRes? projectRes =
-    ProjectPaginationRes.fromJson(json.decode(res.body));
+        ProjectPaginationRes.fromJson(json.decode(res.body));
 
     List<Project>? projects = projectRes.content;
 
-    _stream.maxItemsSink(projectRes.maxItems);
+    _stream.maxItemsSink(projectRes.paging?.maxItems);
     _searchedProjects?.addAll(projects!);
     _stream.projectsSink(_searchedProjects);
     _stream.projectLoadedSink(true);
@@ -118,16 +121,9 @@ class ApiProject {
     return true;
   }
 
-  Future<void> refreshAllMyProjects() async {
-    cleanSearch();
-    cleanProjects();
-    await getAllMyProjects();
-  }
-
   Future createProject(
       {required String name, required BuildContext context}) async {
     final _headersTk = await Api().getHeadersTk();
-
 
     final res = await http.post(Uri.parse('$_url/project'),
         headers: _headersTk, body: jsonEncode({"name": name}));
@@ -138,11 +134,63 @@ class ApiProject {
       return false;
     }
 
-    Project? project = ProjectRes
-        .fromJson(json.decode(res.body))
-        .data;
+    Project? project = ProjectRes.fromJson(json.decode(res.body)).data;
 
     return project;
+  }
+
+  Future downloadReports({required String projectId}) async {
+    final _headersTk = await Api().getHeadersTk();
+
+    Map<String, String> queryParameters = {
+      'projectId': projectId.trim(),
+      'page': '1'
+    };
+    final uri = Uri.https(_domain, '/csv/reports', queryParameters);
+
+    if (await Permission.storage.request().isGranted) {
+      final res = await http.get(uri, headers: _headersTk);
+
+      print('downloadCsv() STATUS CODE: ${res.statusCode}');
+
+      if (res.statusCode != 200) {
+        return false;
+      }
+
+      final baseStorage = await getExternalStorageDirectory();
+      final taskId = await FlutterDownloader.enqueue(
+        url: uri.toString(),
+        headers: _headersTk,
+        savedDir: baseStorage!.path,
+        showNotification: true,
+        openFileFromNotification: true,
+      );
+      return true;
+    }
+
+    return false;
+  }
+
+  Future deleteProject({required String projectId}) async {
+    final _headersTk = await Api().getHeadersTk();
+
+    final res = await http.delete(
+        Uri.parse('$_url/project?projectId=$projectId'),
+        headers: _headersTk);
+
+    print('deleteProject() STATUS CODE: ${res.statusCode}');
+
+    if (res.statusCode != 200) {
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<void> refreshAllMyProjects() async {
+    cleanSearch();
+    cleanProjects();
+    await getAllMyProjects();
   }
 
   void cleanSearch() {

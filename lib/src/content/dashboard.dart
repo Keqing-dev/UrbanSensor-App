@@ -8,6 +8,7 @@ import 'package:urbansensor/src/utils/loading_indicators_c.dart';
 import 'package:urbansensor/src/utils/palettes.dart';
 import 'package:urbansensor/src/widgets/cards/project_card.dart';
 import 'package:urbansensor/src/widgets/cards/report_card.dart';
+import 'package:urbansensor/src/widgets/label.dart';
 import 'package:urbansensor/src/widgets/profile_info.dart';
 
 class Dashboard extends StatefulWidget {
@@ -32,11 +33,11 @@ class _DashboardState extends State<Dashboard> {
           const ProfileInfo(),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: _label(
-              context: context,
+            child: Label(
               title: 'Proyectos',
               iconData: UniconsLine.channel,
-              info: '',
+              iconColor: Palettes.lightBlue,
+              info: 'Desliza para refrescar.',
             ),
           ),
           Container(
@@ -44,11 +45,12 @@ class _DashboardState extends State<Dashboard> {
               child: _latestProject(apiProject, context)),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: _label(
-                context: context,
-                title: 'Reportes',
-                iconData: UniconsLine.chart,
-                info: 'Últimos 10 reportes'),
+            child: Label(
+              title: 'Reportes',
+              iconData: UniconsLine.chart,
+              iconColor: Palettes.lightBlue,
+              info: 'Últimos 10 reportes',
+            ),
           ),
           Container(
             margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -56,43 +58,6 @@ class _DashboardState extends State<Dashboard> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _label({
-    required BuildContext context,
-    required String title,
-    required IconData iconData,
-    String? info,
-  }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Container(
-              margin: const EdgeInsets.only(right: 10),
-              child: Icon(
-                iconData,
-                color: Palettes.lightBlue,
-                size: 30,
-              ),
-            ),
-            Text(
-              title,
-              style: Theme.of(context).textTheme.subtitle1!.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: Palettes.gray2,
-                  ),
-            ),
-          ],
-        ),
-        Text(
-          '$info',
-          style: Theme.of(context).textTheme.bodyText1!.copyWith(
-              fontWeight: FontWeight.w500, color: Palettes.gray2, fontSize: 14),
-        ),
-      ],
     );
   }
 
