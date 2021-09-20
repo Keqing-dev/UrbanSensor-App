@@ -44,25 +44,37 @@ class Report {
   String? _longitude;
   String? _categories;
   String? _timestamp;
+  String? _observations;
 
   String? get id => _id;
+
   String? get address => _address;
+
   String? get file => _file;
+
   User? get user => _user;
+
   String? get latitude => _latitude;
+
   String? get longitude => _longitude;
+
   String? get categories => _categories;
+
   String? get timestamp => _timestamp;
 
+  String? get observations => _observations;
+
   Report({
-      String? id, 
-      String? address, 
-      String? file, 
-      User? user, 
-      String? latitude, 
-      String? longitude, 
-      String? categories, 
-      String? timestamp}){
+    String? id,
+    String? address,
+    String? file,
+    User? user,
+    String? latitude,
+    String? longitude,
+    String? categories,
+    String? timestamp,
+    String? observations,
+  }) {
     _id = id;
     _address = address;
     _file = file;
@@ -71,7 +83,8 @@ class Report {
     _longitude = longitude;
     _categories = categories;
     _timestamp = timestamp;
-}
+    _observations = observations;
+  }
 
   Report.fromJson(dynamic json) {
     _id = json['id'];
@@ -82,6 +95,7 @@ class Report {
     _longitude = json['longitude'];
     _categories = json['categories'];
     _timestamp = json['timestamp'];
+    _observations = json['observations'];
   }
 
   Map<String, dynamic> toJson() {
@@ -96,6 +110,7 @@ class Report {
     map['longitude'] = _longitude;
     map['categories'] = _categories;
     map['timestamp'] = _timestamp;
+    map['observations'] = _observations;
     return map;
   }
 
