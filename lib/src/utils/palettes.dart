@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class Palettes {
   static const Color _primary = Color.fromRGBO(1, 1, 1, 1);
   static const Color _gray5 = Color.fromRGBO(240, 240, 240, 1);
+  static const Color _gray1 = Color.fromRGBO(51, 51, 51, 1);
   static const Color _gray2 = Color.fromRGBO(79, 79, 79, 1);
   static const Color _gray3 = Color.fromRGBO(130, 130, 130, 1);
   static const Color _green2 = Color.fromRGBO(39, 174, 96, 1);
@@ -22,4 +23,6 @@ class Palettes {
   static Color get green2 => _green2;
 
   static Color get rose => _rose;
+
+  static Color get gray1 => _gray1;
 }

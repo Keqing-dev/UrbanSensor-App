@@ -13,6 +13,7 @@ class Input extends StatefulWidget {
     this.controller,
     this.feedback,
     this.validator,
+    this.func,
   }) : super(key: key);
 
   final String label;
@@ -22,6 +23,7 @@ class Input extends StatefulWidget {
   final TextEditingController? controller;
   final Widget? feedback;
   final FormFieldValidator<String>? validator;
+  final Function? func;
 
   @override
   _InputState createState() => _InputState();
@@ -53,6 +55,11 @@ class _InputState extends State<Input> {
                 boxShadow: shadow(),
               ),
               child: TextFormField(
+                onChanged: (value) {
+                  if (widget.func != null) {
+                    widget.func!(value);
+                  }
+                },
                 validator: widget.validator,
                 controller: widget.controller,
                 keyboardType: widget.keyboardType,

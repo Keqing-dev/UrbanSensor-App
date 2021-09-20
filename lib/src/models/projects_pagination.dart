@@ -1,3 +1,4 @@
+import 'package:urbansensor/src/models/paging.dart';
 import 'package:urbansensor/src/models/project.dart';
 
 class ProjectPaginationRes {
@@ -42,22 +43,3 @@ class ProjectPaginationRes {
   }
 }
 
-class Paging {
-  String? _next;
-
-  String? get next => _next;
-
-  Paging({String? next}) {
-    _next = next;
-  }
-
-  Paging.fromJson(dynamic json) {
-    _next = json['next'];
-  }
-
-  Map<String, dynamic> toJson() {
-    var map = <String, dynamic>{};
-    map['next'] = _next;
-    return map;
-  }
-}

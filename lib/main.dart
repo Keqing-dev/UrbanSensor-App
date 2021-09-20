@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:provider/provider.dart';
+import 'package:urbansensor/src/pages/create_project.dart';
 import 'package:urbansensor/src/pages/home.dart';
 import 'package:urbansensor/src/pages/login_page.dart';
 import 'package:urbansensor/src/pages/project_page.dart';
 import 'package:urbansensor/src/pages/register_page.dart';
 import 'package:urbansensor/src/preferences/user_preferences.dart';
 import 'package:urbansensor/src/providers/navigation_provider.dart';
+import 'package:urbansensor/src/providers/project_provider.dart';
 import 'package:urbansensor/src/providers/user_provider.dart';
 import 'package:urbansensor/src/utils/palettes.dart';
 import 'package:urbansensor/src/utils/theme.dart';
@@ -23,6 +26,9 @@ void main() async {
   );
 
   WidgetsFlutterBinding.ensureInitialized();
+  await FlutterDownloader.initialize(
+      debug: false // optional: set false to disable printing logs to console
+      );
   final userPreferences = UserPreferences();
   await userPreferences.initPreferences();
   await Jiffy.locale("es");
@@ -39,21 +45,29 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => NavigationProvider()),
         ChangeNotifierProvider(create: (context) => UserProvider()),
+        ChangeNotifierProvider(create: (context) => ProjectProvider()),
       ],
       child: MaterialApp(
         title: 'UrbanSensor',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          canvasColor: Palettes.gray5,
-          fontFamily: 'Montserrat',
-          textTheme: CustomTheme.textTheme,
-        ),
+            canvasColor: Palettes.gray5,
+            fontFamily: 'Montserrat',
+            textTheme: CustomTheme.textTheme,
+            appBarTheme: const AppBarTheme(
+              elevation: 0,
+              systemOverlayStyle: SystemUiOverlayStyle(
+                statusBarColor: Colors.transparent,
+                statusBarIconBrightness: Brightness.dark,
+              ),
+            )),
         initialRoute: isLogged ? 'home' : 'login',
         routes: {
           'login': (BuildContext context) => const LoginPage(),
           'register': (BuildContext context) => const RegisterPage(),
           'home': (BuildContext context) => const Home(),
           'project': (BuildContext context) => const ProjectPage(),
+          'createProject': (BuildContext context) => const CreateProject(),
         },
       ),
     );

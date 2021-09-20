@@ -1,5 +1,7 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:unicons/unicons.dart';
 import 'package:urbansensor/src/models/project.dart';
 import 'package:urbansensor/src/services/api_project.dart';
 import 'package:urbansensor/src/streams/project_stream.dart';
@@ -7,6 +9,7 @@ import 'package:urbansensor/src/utils/debouncer.dart';
 import 'package:urbansensor/src/utils/loading_indicators_c.dart';
 import 'package:urbansensor/src/widgets/cards/project_card.dart';
 import 'package:urbansensor/src/widgets/input_search.dart';
+import 'package:urbansensor/src/widgets/title_page.dart';
 
 class ProjectsPage extends StatefulWidget {
   const ProjectsPage({Key? key}) : super(key: key);
@@ -22,6 +25,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
   ScrollController scrollController = ScrollController();
   final debouncer = Debouncer(duration: const Duration(milliseconds: 500));
   String searchValue = '';
+  int maxItems = 0;
 
   @override
   void initState() {
@@ -61,6 +65,22 @@ class _ProjectsPageState extends State<ProjectsPage> {
       edgeOffset: 20,
       child: Column(
         children: [
+          StreamBuilder(
+              stream: stream.maxItemsStream,
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                int? counts = snapshot.data ?? 0;
+                return Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  child: TitlePage(
+                    title: 'Mis Proyectos',
+                    caption: '$counts Proyectos encontrados.',
+                    iconData: UniconsLine.folder_plus,
+                    iconFunc: () =>
+                        Navigator.pushNamed(context, 'createProject'),
+                  ),
+                );
+              }),
           Container(
             margin: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
             child: InputSearch(func: (value) {
