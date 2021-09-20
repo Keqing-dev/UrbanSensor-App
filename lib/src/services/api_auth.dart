@@ -26,7 +26,6 @@ class ApiAuth {
       body: json.encode(loginData),
     );
 
-    print('login() STATUS CODE: ${response.statusCode}');
     if (response.statusCode != 200) {
       return false;
     }
