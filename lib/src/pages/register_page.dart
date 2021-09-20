@@ -216,7 +216,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       onPressed: _isLoading
                           ? null
                           : () {
-                              Navigator.pushNamed(context, "login");
+                              Navigator.pushReplacementNamed(context, "login");
                             },
                       type: ButtonType.outlined,
                       fillColor: const Color.fromRGBO(155, 81, 224, 1.0),

@@ -8,6 +8,7 @@ class BottomNavigationBarC extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final navigationProvider = Provider.of<NavigationProvider>(context);
     return Theme(
       data: Theme.of(context).copyWith(canvasColor: Colors.black12),
@@ -16,6 +17,8 @@ class BottomNavigationBarC extends StatelessWidget {
         shape: const CircularNotchedRectangle(),
         clipBehavior: Clip.antiAlias,
         child: BottomNavigationBar(
+          showUnselectedLabels: true,
+          selectedItemColor: theme.colorScheme.secondary,
           unselectedItemColor: const Color.fromRGBO(107, 107, 107, 1),
           elevation: 0,
           currentIndex: navigationProvider.selectedIndex,
@@ -24,9 +27,11 @@ class BottomNavigationBarC extends StatelessWidget {
             BottomNavigationBarItem(
                 icon: Icon(UniconsLine.estate), label: 'Inicio'),
             BottomNavigationBarItem(
-                icon: Icon(Icons.folder_open), label: 'Proyectos'),
+                icon: Icon(UniconsLine.folder), label: 'Proyectos'),
             BottomNavigationBarItem(
-                icon: Icon(Icons.analytics_outlined), label: 'Reportes'),
+                icon: Icon(UniconsLine.map_marker), label: 'Reportes'),
+            BottomNavigationBarItem(
+                icon: Icon(UniconsLine.bars), label: 'Menu'),
           ],
         ),
       ),

@@ -79,8 +79,8 @@ class _ProfileInfoState extends State<ProfileInfo> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(100),
                     child: CachedNetworkImage(
-                      imageUrl: user?.thumbnails?.lg != null
-                          ? '${user?.thumbnails?.lg}'
+                      imageUrl: user?.avatar != null
+                          ? '${user?.avatar}'
                           : 'https://thispersondoesnotexist.com/image',
                       errorWidget: (context, url, error) => const Text('Error'),
                       placeholder: (context, url) =>
