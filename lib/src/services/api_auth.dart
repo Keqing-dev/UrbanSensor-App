@@ -1,13 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:urbansensor/src/models/login.dart';
 import 'package:urbansensor/src/preferences/user_preferences.dart';
 import 'package:urbansensor/src/providers/user_provider.dart';
 import 'package:urbansensor/src/services/api.dart';
-import 'package:http/http.dart' as http;
 
 class ApiAuth {
   Api api = Api();
@@ -24,7 +24,6 @@ class ApiAuth {
       body: json.encode(loginData),
     );
 
-    print('login() STATUS CODE: ${response.statusCode}');
     if (response.statusCode != 200) {
       return false;
     }
