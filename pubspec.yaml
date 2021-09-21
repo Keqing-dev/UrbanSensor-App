@@ -50,6 +50,7 @@ dependencies:
   path_provider: ^2.0.5
   flutter_downloader: ^1.7.0
   google_maps_flutter: ^2.0.10
+  flutter_slidable: ^0.6.0
 
 dev_dependencies:
   flutter_test:

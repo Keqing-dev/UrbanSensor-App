@@ -7,8 +7,9 @@ import 'package:urbansensor/src/pages/create_project.dart';
 import 'package:urbansensor/src/pages/home.dart';
 import 'package:urbansensor/src/pages/login_page.dart';
 import 'package:urbansensor/src/pages/project_page.dart';
-import 'package:urbansensor/src/pages/report_page.dart';
 import 'package:urbansensor/src/pages/register_page.dart';
+import 'package:urbansensor/src/pages/report_page.dart';
+import 'package:urbansensor/src/pages/test_components.dart';
 import 'package:urbansensor/src/preferences/user_preferences.dart';
 import 'package:urbansensor/src/providers/navigation_provider.dart';
 import 'package:urbansensor/src/providers/project_provider.dart';
@@ -52,23 +53,17 @@ class MyApp extends StatelessWidget {
         title: 'UrbanSensor',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-            canvasColor: Palettes.gray5,
-            fontFamily: 'Montserrat',
-            appBarTheme: const AppBarTheme(
-              elevation: 0,
-              systemOverlayStyle: SystemUiOverlayStyle(
-                statusBarColor: Colors.transparent,
-                statusBarIconBrightness: Brightness.dark,
-              ),
+          canvasColor: Palettes.gray5,
+          fontFamily: 'Montserrat',
+          appBarTheme: const AppBarTheme(
+            elevation: 0,
+            systemOverlayStyle: SystemUiOverlayStyle(
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness: Brightness.dark,
             ),
-            textTheme: CustomTheme.textTheme,
-            appBarTheme: const AppBarTheme(
-              elevation: 0,
-              systemOverlayStyle: SystemUiOverlayStyle(
-                statusBarColor: Colors.transparent,
-                statusBarIconBrightness: Brightness.dark,
-              ),
-            )),
+          ),
+          textTheme: CustomTheme.textTheme,
+        ),
         initialRoute: isLogged ? 'home' : 'login',
         routes: {
           'login': (BuildContext context) => const LoginPage(),
@@ -77,6 +72,7 @@ class MyApp extends StatelessWidget {
           'project': (BuildContext context) => const ProjectPage(),
           'createProject': (BuildContext context) => const CreateProject(),
           'report': (BuildContext context) => const ReportPage(),
+          'test': (BuildContext context) => const TestComponents(),
         },
       ),
     );

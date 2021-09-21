@@ -169,7 +169,7 @@ class _ReportPageState extends State<ReportPage> {
           ),
           _label(
               iconData: UniconsLine.notes,
-              label: '${_reportSelected?.observations}')
+              label: _reportSelected?.observations ?? 'Sin obsevaciónes')
         ],
       ),
       actions: [

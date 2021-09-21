@@ -219,7 +219,7 @@ class _ProjectPageState extends State<ProjectPage> {
                   padding: const EdgeInsets.symmetric(horizontal: 5),
                   child: Text(
                     option,
-                    style: Theme.of(context).textTheme.bodyText1!.copyWith(
+                    style: Theme.of(context).textTheme.subtitle2!.copyWith(
                           fontWeight: FontWeight.w500,
                         ),
                   ),
