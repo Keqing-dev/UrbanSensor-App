@@ -18,9 +18,14 @@ class ReportCard extends StatelessWidget {
       // Specify a key if the Slidable is dismissible.
       key: const ValueKey(0),
       actions: [
-        _action(iconData: UniconsLine.trash, color: Palettes.rose),
         _action(
-            iconData: UniconsLine.file_download_alt, color: Palettes.green2),
+            iconData: UniconsLine.trash,
+            color: Palettes.rose,
+            tooltip: 'Eliminar'),
+        _action(
+            iconData: UniconsLine.file_download_alt,
+            color: Palettes.green2,
+            tooltip: 'Eliminar'),
       ],
 
       child: Container(
@@ -114,27 +119,33 @@ class ReportCard extends StatelessWidget {
     );
   }
 
-  Widget _action({required IconData iconData, required Color color}) {
-    return Container(
-      margin: const EdgeInsets.only(right: 10, top: 5, bottom: 5),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        // color: const Color.fromRGBO(245, 245, 245, 1.0),
-        boxShadow: const [
-          BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.12), blurRadius: 12)
-        ],
-      ),
-      child: Material(
-        borderRadius: BorderRadius.circular(8),
-        color: Colors.white,
-        child: InkWell(
+  Widget _action(
+      {required IconData iconData,
+      required Color color,
+      required String tooltip}) {
+    return Tooltip(
+      message: tooltip,
+      child: Container(
+        margin: const EdgeInsets.only(right: 10, top: 5, bottom: 5),
+        decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          onTap: () {},
-          child: SizedBox(
-            height: double.infinity,
-            child: Icon(
-              iconData,
-              color: color,
+          // color: const Color.fromRGBO(245, 245, 245, 1.0),
+          boxShadow: const [
+            BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.12), blurRadius: 12)
+          ],
+        ),
+        child: Material(
+          borderRadius: BorderRadius.circular(8),
+          color: Colors.white,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(8),
+            onTap: () {},
+            child: SizedBox(
+              height: double.infinity,
+              child: Icon(
+                iconData,
+                color: color,
+              ),
             ),
           ),
         ),
