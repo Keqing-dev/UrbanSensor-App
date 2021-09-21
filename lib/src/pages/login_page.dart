@@ -130,7 +130,8 @@ class _LoginPageState extends State<LoginPage> {
                       onPressed: isLoading
                           ? null
                           : () {
-                              Navigator.pushNamed(context, "register");
+                              Navigator.pushReplacementNamed(
+                                  context, "register");
                             },
                       type: ButtonType.outlined,
                       fillColor: const Color.fromRGBO(155, 81, 224, 1.0),

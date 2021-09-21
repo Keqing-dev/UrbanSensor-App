@@ -1,6 +1,7 @@
+import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:urbansensor/src/models/user.dart';
-import 'dart:convert';
 
 class UserPreferences {
   static final UserPreferences _instance = UserPreferences._();
@@ -20,19 +21,21 @@ class UserPreferences {
     return User.fromJson(json.decode(user!));
   }
 
-  get isLogged{
+  get isLogged {
     final user = _preferences.getString('user');
     return user != null;
   }
 
-  set setUser(User? user){
+  set setUser(User? user) {
     _preferences.setString('user', json.encode(user));
   }
 
-
-  Future clear() async{
-    await _preferences.clear();
+  logout() {
+    _preferences.remove("user");
+    _preferences.remove("token");
   }
 
-
+  Future clear() async {
+    await _preferences.clear();
+  }
 }
