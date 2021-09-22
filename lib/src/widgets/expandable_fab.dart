@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:unicons/unicons.dart';
+import 'package:urbansensor/src/utils/theme.dart';
 
 class ExpandableFab extends StatefulWidget {
   const ExpandableFab({
@@ -203,6 +204,7 @@ class ActionButton extends StatelessWidget {
       child: IconButton(
         onPressed: onPressed,
         icon: icon,
+        color: CustomTheme.athensGray,
       ),
     );
   }
