@@ -7,6 +7,7 @@ import 'package:urbansensor/src/pages/create_project.dart';
 import 'package:urbansensor/src/pages/home.dart';
 import 'package:urbansensor/src/pages/login_page.dart';
 import 'package:urbansensor/src/pages/project_page.dart';
+import 'package:urbansensor/src/pages/project_reports.dart';
 import 'package:urbansensor/src/pages/register_page.dart';
 import 'package:urbansensor/src/pages/report_page.dart';
 import 'package:urbansensor/src/pages/test_components.dart';
@@ -72,6 +73,7 @@ class MyApp extends StatelessWidget {
           'project': (BuildContext context) => const ProjectPage(),
           'createProject': (BuildContext context) => const CreateProject(),
           'report': (BuildContext context) => const ReportPage(),
+          'projectReports': (BuildContext context) => const ProjectReports(),
           'test': (BuildContext context) => const TestComponents(),
         },
       ),

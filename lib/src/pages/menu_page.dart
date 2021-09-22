@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:unicons/unicons.dart';
 import 'package:urbansensor/src/preferences/user_preferences.dart';
+import 'package:urbansensor/src/providers/navigation_provider.dart';
 
 class MenuPage extends StatelessWidget {
   const MenuPage({Key? key}) : super(key: key);
@@ -33,9 +35,12 @@ class MenuPage extends StatelessWidget {
               color: theme.colorScheme.secondary,
             ),
             title: const Text('Cerrar Sesión'),
-            onTap: () {
+            onTap: () async {
+              NavigationProvider navProvider =
+                  Provider.of<NavigationProvider>(context, listen: false);
               UserPreferences().logout();
-              Navigator.pushReplacementNamed(context, "login");
+              await Navigator.pushReplacementNamed(context, "login");
+              navProvider.selectedIndex = 0;
             },
           ),
         ],

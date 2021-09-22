@@ -4,6 +4,7 @@ import 'package:urbansensor/src/models/project.dart';
 import 'package:urbansensor/src/models/report.dart';
 import 'package:urbansensor/src/services/api_project.dart';
 import 'package:urbansensor/src/services/api_report.dart';
+import 'package:urbansensor/src/streams/report_stream.dart';
 import 'package:urbansensor/src/utils/loading_indicators_c.dart';
 import 'package:urbansensor/src/utils/palettes.dart';
 import 'package:urbansensor/src/widgets/cards/project_card.dart';
@@ -23,9 +24,17 @@ class _DashboardState extends State<Dashboard> {
   ApiReport apiReport = ApiReport();
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    apiReport.getLatestReport();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () async {
+        await apiReport.getLatestReport();
         setState(() {});
       },
       child: ListView(
@@ -43,18 +52,9 @@ class _DashboardState extends State<Dashboard> {
           Container(
               margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               child: _latestProject(apiProject, context)),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Label(
-              title: 'Reportes',
-              iconData: UniconsLine.chart,
-              iconColor: Palettes.lightBlue,
-              info: 'Últimos 10 reportes',
-            ),
-          ),
           Container(
             margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            child: _latestReports(apiReport),
+            child: _latestReports(),
           ),
         ],
       ),
@@ -150,13 +150,30 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
-  Widget _latestReports(ApiReport api) {
-    return FutureBuilder(
-        future: api.getLatestReport(),
+  Widget _latestReports() {
+    ReportStream stream = ReportStream();
+
+    return StreamBuilder(
+        stream: stream.reportsStream,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             List<Report>? reports = snapshot.data;
-            return _reportList(reports);
+            return Column(
+              children: [
+                reports!.isNotEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Label(
+                          title: 'Reportes',
+                          iconData: UniconsLine.chart,
+                          iconColor: Palettes.lightBlue,
+                          info: 'Últimos 10 reportes',
+                        ),
+                      )
+                    : Container(),
+                _reportList(reports),
+              ],
+            );
           } else if (snapshot.hasError) {
             return Row(
               children: const [

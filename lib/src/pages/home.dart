@@ -16,7 +16,10 @@ class Home extends StatelessWidget {
     return Scaffold(
       extendBodyBehindAppBar: true,
       extendBody: true,
-      body: SafeArea(child: _contentPageSelected(context)),
+      body: SafeArea(
+        bottom: false,
+        child: _contentPageSelected(context),
+      ),
       // floatingActionButton: FloatingActionButton(
       //   elevation: 0,
       //   onPressed: () {},

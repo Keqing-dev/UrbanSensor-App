@@ -80,9 +80,3 @@ class ProjectCard extends StatelessWidget {
   }
 }
 
-/*
-
-onTap: () {
-                Navigator.pushNamed(context, 'project', arguments: project);
-              },
- */

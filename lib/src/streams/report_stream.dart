@@ -17,20 +17,34 @@ class ReportStream{
 
   ReportStream._();
 
+  StreamController<List<Report>?> _reportsStreamController =
+      StreamController.broadcast();
 
-  StreamController<List<Report>?> _reportsStreamController = StreamController.broadcast();
   Function(List<Report>?) get reportsSink => _reportsStreamController.sink.add;
+
   Stream<List<Report>?> get reportsStream => _reportsStreamController.stream;
 
+  StreamController<List<Report>?> _reportsProjectStreamController =
+      StreamController.broadcast();
 
-  StreamController<bool> _reportsLoadedStreamController = StreamController.broadcast();
-  Function(bool) get reportLoadedSink => _reportsLoadedStreamController.sink.add;
+  Function(List<Report>?) get reportsProjectSink =>
+      _reportsProjectStreamController.sink.add;
+
+  Stream<List<Report>?> get reportsProjectStream =>
+      _reportsProjectStreamController.stream;
+
+  StreamController<bool> _reportsLoadedStreamController =
+      StreamController.broadcast();
+
+  Function(bool) get reportLoadedSink =>
+      _reportsLoadedStreamController.sink.add;
+
   Stream<bool> get reportLoadedStream => _reportsLoadedStreamController.stream;
 
-
-  void disposeStream(){
+  void disposeStream() {
     _reportsStreamController.close();
     _reportsLoadedStreamController.close();
+    _reportsProjectStreamController.close();
   }
 
 

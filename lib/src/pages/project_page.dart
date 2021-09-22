@@ -13,7 +13,6 @@ import 'package:urbansensor/src/streams/report_stream.dart';
 import 'package:urbansensor/src/utils/loading_indicators_c.dart';
 import 'package:urbansensor/src/utils/palettes.dart';
 import 'package:urbansensor/src/widgets/cards/report_card.dart';
-import 'package:urbansensor/src/widgets/label.dart';
 import 'package:urbansensor/src/widgets/navigators/back_app_bar.dart';
 import 'package:urbansensor/src/widgets/project_setting_item.dart';
 import 'package:urbansensor/src/widgets/title_page.dart';
@@ -57,6 +56,7 @@ class _ProjectPageState extends State<ProjectPage> {
     IsolateNameServer.removePortNameMapping('downloader_send_port');
     super.dispose();
     scrollController.dispose();
+    apiReport.clean();
   }
 
   static void downloadCallback(
@@ -75,7 +75,8 @@ class _ProjectPageState extends State<ProjectPage> {
       if (scrollController.position.pixels ==
           scrollController.position.maxScrollExtent) {
         if (apiSuccess) {
-          if (apiReport.isSearching) {} else {
+          if (apiReport.isSearching) {
+          } else {
             apiSuccess =
                 await apiReport.getReportsByProject(projectId: '${project.id}');
           }
@@ -116,15 +117,24 @@ class _ProjectPageState extends State<ProjectPage> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(
-                              left: 16, right: 16, top: 30),
-                          child: Label(
-                            iconData: UniconsLine.chart,
-                            iconColor: Palettes.lightBlue,
-                            title: 'Reportes',
-                            info: '',
-                          ),
-                        ),
+                            padding: const EdgeInsets.only(
+                                left: 0, right: 16, top: 30),
+                            child: ListTile(
+                              title: Text(
+                                'Reportes',
+                                style: Theme.of(context).textTheme.subtitle1!,
+                              ),
+                              subtitle: Row(
+                                children: [
+                                  Image.asset(
+                                    'assets/img/swipe-right.png',
+                                    width: 25,
+                                    color: Palettes.lightBlue,
+                                  ),
+                                  Text("Desliza para ver las opciones"),
+                                ],
+                              ),
+                            )),
                         Expanded(
                           child: Container(
                             margin: const EdgeInsets.only(top: 15),
@@ -245,6 +255,12 @@ class _ProjectPageState extends State<ProjectPage> {
           UniconsLine.file_download,
           color: Palettes.green2,
         );
+
+      case ProjectSettingItem.OpenInMap:
+        return Icon(
+          UniconsLine.map,
+          color: Palettes.green2,
+        );
       default:
         return Icon(UniconsLine.file_download);
     }
@@ -259,6 +275,13 @@ class _ProjectPageState extends State<ProjectPage> {
       case ProjectSettingItem.Download:
         bool success =
             await apiProject.downloadReports(projectId: '${project?.id}');
+        break;
+
+      case ProjectSettingItem.OpenInMap:
+        if (project?.reportsCount == 0) {
+        } else {
+          Navigator.pushNamed(context, 'projectReports', arguments: project);
+        }
         break;
       default:
         break;

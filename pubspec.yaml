@@ -51,6 +51,8 @@ dependencies:
   flutter_downloader: ^1.7.0
   google_maps_flutter: ^2.0.10
   flutter_slidable: ^0.6.0
+  animated_bottom_navigation_bar: ^0.3.2
+  pandabar: ^0.1.2
 
 dev_dependencies:
   flutter_test:
