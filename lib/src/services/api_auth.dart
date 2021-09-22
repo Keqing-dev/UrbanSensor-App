@@ -52,6 +52,7 @@ class ApiAuth {
     User? user = LoginResponse.fromJson(json.decode(res.body)).data;
 
     print(user?.name);
+    print(user?.avatar);
 
     if (res.statusCode != 200) {
       return false;

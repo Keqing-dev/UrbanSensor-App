@@ -5,6 +5,7 @@ import 'package:urbansensor/src/content/dashboard.dart';
 import 'package:urbansensor/src/pages/menu_page.dart';
 import 'package:urbansensor/src/pages/projects_page.dart';
 import 'package:urbansensor/src/providers/navigation_provider.dart';
+import 'package:urbansensor/src/widgets/capture_image.dart';
 import 'package:urbansensor/src/widgets/expandable_fab.dart';
 import 'package:urbansensor/src/widgets/navigators/bottom_navigation_bar.dart';
 
@@ -28,7 +29,9 @@ class Home extends StatelessWidget {
           icon: const Icon(UniconsLine.microphone),
         ),
         ActionButton(
-          onPressed: () {},
+          onPressed: () {
+            captureImage(context);
+          },
           icon: const Icon(UniconsLine.image),
         ),
         ActionButton(
