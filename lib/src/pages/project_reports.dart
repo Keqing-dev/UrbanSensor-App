@@ -6,13 +6,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_cluster_manager/google_maps_cluster_manager.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:loading_indicator/loading_indicator.dart';
+import 'package:unicons/unicons.dart';
+import 'package:urbansensor/src/models/place.dart';
 import 'package:urbansensor/src/models/project.dart';
 import 'package:urbansensor/src/models/report.dart';
 import 'package:urbansensor/src/preferences/project_preferences.dart';
 import 'package:urbansensor/src/services/api_report.dart';
 import 'package:urbansensor/src/streams/report_stream.dart';
 import 'package:urbansensor/src/utils/palettes.dart';
-import 'package:urbansensor/src/utils/place.dart';
 import 'package:urbansensor/src/widgets/maps/report_preview.dart';
 
 class ProjectReports extends StatefulWidget {
@@ -27,6 +29,7 @@ class _ProjectReportsState extends State<ProjectReports> {
   Set<Marker> markers = Set();
   BitmapDescriptor? mapMarker;
   Report? _reportSelected;
+  List<Report>? _listReportSelected;
   ApiReport api = ApiReport();
   ReportStream stream = ReportStream();
   ProjectPreferences preferences = ProjectPreferences();
@@ -78,8 +81,27 @@ class _ProjectReportsState extends State<ProjectReports> {
 
     return Scaffold(
         appBar: AppBar(
-          title: Text('${project.name}'),
-          backgroundColor: Palettes.lightBlue,
+          title: ListTile(
+            title: Text(
+              '${project.name}',
+              style: Theme.of(context).textTheme.subtitle1!.copyWith(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600),
+            ),
+            subtitle: Text(
+              '${project.reportsCount} Reportes',
+              style: Theme.of(context).textTheme.subtitle2!.copyWith(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400),
+            ),
+            trailing: const Icon(
+              UniconsLine.map,
+              color: Colors.white,
+            ),
+          ),
+          backgroundColor: Palettes.green2,
           centerTitle: true,
         ),
         body: Stack(
@@ -93,18 +115,20 @@ class _ProjectReportsState extends State<ProjectReports> {
                       onTap: (_) {
                         setState(() {
                           _reportSelected = null;
+                          _listReportSelected = null;
                         });
                       },
                       mapType: MapType.normal,
                       initialCameraPosition: _initCameraPosition(reports?[0]),
                       markers: markers,
+                      mapToolbarEnabled: false,
+                      zoomControlsEnabled: false,
+                      compassEnabled: true,
                       onMapCreated: (GoogleMapController controller) {
                         setState(() {
                           _manager = _apiClusterManager(reports);
                         });
-
                         _controller.complete(controller);
-
                         setState(() {
                           _manager.setMapId(controller.mapId);
                         });
@@ -114,7 +138,18 @@ class _ProjectReportsState extends State<ProjectReports> {
                 } else if (snapshot.hasError) {
                   return Icon(Icons.error_outline);
                 } else {
-                  return CircularProgressIndicator();
+                  return Center(
+                    child: SizedBox(
+                      width: 100,
+                      child: LoadingIndicator(
+                        indicatorType: Indicator.ballRotateChase,
+                        colors: [
+                          Palettes.gray2,
+                          Colors.lightBlue,
+                        ],
+                      ),
+                    ),
+                  );
                 }
               },
             ),
@@ -127,7 +162,62 @@ class _ProjectReportsState extends State<ProjectReports> {
                 visible: _reportSelected != null,
                 child: ReportPreview(reportSelected: _reportSelected),
               ),
-            )
+            ),
+            AnimatedOpacity(
+              duration: Duration(milliseconds: 250),
+              opacity: _reportSelected == null && _listReportSelected != null
+                  ? 1
+                  : 0,
+              curve: Curves.easeIn,
+              child: WillPopScope(
+                onWillPop: () async {
+                  bool pop = _listReportSelected == null;
+
+                  if (!pop) {
+                    setState(() {
+                      _listReportSelected = null;
+                    });
+                    return false;
+                  }
+
+                  return pop;
+                },
+                child: Visibility(
+                  visible:
+                      _reportSelected == null && _listReportSelected != null,
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 0, sigmaY: 0),
+                    child: Material(
+                      color: const Color.fromRGBO(0, 0, 0, 0.2),
+                      child: InkWell(
+                        onTap: () {
+                          setState(() {
+                            _listReportSelected = null;
+                          });
+                        },
+                        child: ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: _listReportSelected?.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 5),
+                              child: InkWell(
+                                onTap: () {
+                                  print('jeje2');
+                                },
+                                child: ReportPreview(
+                                    reportSelected:
+                                        _listReportSelected?[index]),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ],
         ));
   }
@@ -149,9 +239,14 @@ class _ProjectReportsState extends State<ProjectReports> {
 
             if (cluster.items.length != 1) {
               cluster.items.forEach((p) => {});
+              setState(() {
+                _reportSelected = null;
+                _listReportSelected =
+                    Report.fromPlaceList(cluster.items.toList());
+              });
             } else {
               setState(() {
-                _reportSelected = Report(id: cluster.items.first.name);
+                _reportSelected = Report.fromPlace(cluster.items.first);
               });
             }
           },
@@ -161,16 +256,22 @@ class _ProjectReportsState extends State<ProjectReports> {
       };
 
   Future<BitmapDescriptor> _getMarkerBitmap(int size, {String? text}) async {
+    if (text == null) {
+      return await BitmapDescriptor.fromAssetImage(
+          const ImageConfiguration(), 'assets/img/location_marker.png');
+    }
     final PictureRecorder pictureRecorder = PictureRecorder();
     final Canvas canvas = Canvas(pictureRecorder);
-    final Paint paint1 = Paint()..color = Palettes.green2;
-    final Paint paint2 = Paint()..color = Color.fromRGBO(62, 57, 53, 1);
-    final Paint paint3 = Paint()..color = Color.fromRGBO(62, 57, 53, 1);
+    final Paint paint1 = Paint()..color = Color.fromRGBO(88, 217, 156, 1);
+    final Paint paint2 = Paint()..color = Color.fromRGBO(88, 217, 156, 1);
+    final Paint paint3 = Paint()..color = Color.fromRGBO(88, 217, 156, 1);
+    final Paint paint4 = Paint()..color = Colors.white;
 
     canvas.drawCircle(Offset(size / 2, size / 2), size / 2.0, paint1);
     canvas.drawCircle(Offset(size / 2, size / 2), size / 2.2, paint2);
     canvas.drawCircle(Offset(size / 1, size / 1), size / 2.2, paint3);
     canvas.drawCircle(Offset(size / 2, size / 2), size / 2.8, paint1);
+    canvas.drawCircle(Offset(size / 2, size / 2), size / 2.8, paint4);
 
     if (text != null) {
       TextPainter painter = TextPainter(textDirection: TextDirection.ltr);
@@ -178,7 +279,7 @@ class _ProjectReportsState extends State<ProjectReports> {
         text: text,
         style: TextStyle(
             fontSize: size / 3,
-            color: Colors.white,
+            color: Colors.black,
             fontWeight: FontWeight.normal),
       );
       painter.layout();

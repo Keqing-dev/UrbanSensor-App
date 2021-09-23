@@ -1,6 +1,6 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:urbansensor/src/models/place.dart';
 import 'package:urbansensor/src/models/user.dart';
-import 'package:urbansensor/src/utils/place.dart';
 
 class ReportRes {
   bool? _success;
@@ -118,10 +118,39 @@ class Report {
     List<Place>? places = [];
     for (int i = 0; i < reports.length; i++) {
       places.add(Place(
-          name: '${reports[i].id}',
-          latLng: LatLng(double.parse('${reports[i].latitude}'),
-              double.parse('${reports[i].longitude}'))));
+        id: '${reports[i].id}',
+        latLng: LatLng(
+            double.parse('${reports[i].latitude}'),
+            double.parse(
+              '${reports[i].longitude}',
+            )),
+        categories: '${reports[i].categories}',
+        observations: '${reports[i].observations}',
+        file: '${reports[i].file}',
+        timestamp: '${reports[i].timestamp}',
+        address: '${reports[i].address}',
+      ));
     }
     return places;
+  }
+
+  Report.fromPlace(Place place) {
+    _id = place.id;
+    _address = place.address;
+    _file = place.file;
+    _latitude = '${place.latLng.latitude}';
+    _longitude = '${place.latLng.longitude}';
+    _categories = place.categories;
+    _timestamp = place.timestamp;
+    _observations = place.observations;
+  }
+
+  static List<Report>? fromPlaceList(List<Place> places) {
+    List<Report>? reports = [];
+    for (Place place in places) {
+      reports.add(Report.fromPlace(place));
+    }
+
+    return reports;
   }
 }
