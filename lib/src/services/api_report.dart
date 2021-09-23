@@ -1,6 +1,7 @@
+import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'package:urbansensor/src/models/report.dart';
-import 'dart:convert';
 import 'package:urbansensor/src/services/api.dart';
 import 'package:urbansensor/src/streams/report_stream.dart';
 
@@ -31,7 +32,7 @@ class ApiReport {
     final _headersTk = await Api().getHeadersTk();
 
     final res =
-        await http.get(Uri.parse('$_url/report?page=1'), headers: _headersTk);
+    await http.get(Uri.parse('$_url/report?page=1'), headers: _headersTk);
 
     print('getLatestReport() STATUS CODE: ${res.statusCode}');
 
@@ -45,7 +46,7 @@ class ApiReport {
     List<Report>? reports = reportRes.content;
 
     _latestReports = reports;
-    _stream.reportsSink(reports);
+    _stream.reportsLatestSink(reports);
 
     return reports;
   }
@@ -58,7 +59,6 @@ class ApiReport {
         headers: _headersTk);
 
     print('getReportsByProject() STATUS CODE: ${res.statusCode}');
-    print(_page);
 
     if (res.statusCode != 200) {
       if (_page == 1) {
@@ -109,36 +109,34 @@ class ApiReport {
     _allReports = [];
   }
 
-  Future getReportsByProjectMap({required String projectId}) async {
+  Future<List<Report>?> getReportsByProjectMap(
+      {required String projectId}) async {
     final _headersTk = await Api().getHeadersTk();
     _stream.reportLoadedSink(false);
     final res = await http.get(
-        Uri.parse('$_url/report/project?id=${projectId}&page=1'),
+        Uri.parse('$_url/report/project/last?id=$projectId'),
         headers: _headersTk);
 
     print('getReportsByProjectMap() STATUS CODE: ${res.statusCode}');
-    // print(_page);
 
     if (res.statusCode != 200) {
       if (_page == 1) {
         _stream.reportsProjectSink([]);
       } else {}
       _stream.reportLoadedSink(true);
-      return false;
+      return [];
     }
-
-    _page++;
 
     ReportRes reportRes = ReportRes.fromJson(json.decode(res.body));
 
-    List<Report>? reports = reportRes.content;
 
-    // _allReportsByProject?.addAll(reports!);
-    _stream.reportsProjectSink(reports);
+    List<Report>? reports = reportRes.content;
+    _stream.reportsProjectMapSink(reports);
     _stream.reportLoadedSink(true);
 
-    return true;
+    return reports;
   }
+
 
   bool get isSearching => _isSearching;
 

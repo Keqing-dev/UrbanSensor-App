@@ -154,7 +154,7 @@ class _DashboardState extends State<Dashboard> {
     ReportStream stream = ReportStream();
 
     return StreamBuilder(
-        stream: stream.reportsStream,
+        stream: stream.reportsLatestStream,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             List<Report>? reports = snapshot.data;

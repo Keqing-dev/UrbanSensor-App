@@ -1,18 +1,19 @@
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:urbansensor/src/models/user.dart';
+import 'package:urbansensor/src/utils/place.dart';
 
 class ReportRes {
   bool? _success;
   List<Report>? _content;
 
   bool? get success => _success;
+
   List<Report>? get content => _content;
 
-  ReportRes({
-      bool? success, 
-      List<Report>? content}){
+  ReportRes({bool? success, List<Report>? content}) {
     _success = success;
     _content = content;
-}
+  }
 
   ReportRes.fromJson(dynamic json) {
     _success = json['success'];
@@ -32,7 +33,6 @@ class ReportRes {
     }
     return map;
   }
-
 }
 
 class Report {
@@ -114,5 +114,14 @@ class Report {
     return map;
   }
 
+  static List<Place>? toPlace(List<Report> reports) {
+    List<Place>? places = [];
+    for (int i = 0; i < reports.length; i++) {
+      places.add(Place(
+          name: '${reports[i].id}',
+          latLng: LatLng(double.parse('${reports[i].latitude}'),
+              double.parse('${reports[i].longitude}'))));
+    }
+    return places;
+  }
 }
-

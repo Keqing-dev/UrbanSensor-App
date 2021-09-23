@@ -7,6 +7,7 @@ import 'package:loading_indicator/loading_indicator.dart';
 import 'package:unicons/unicons.dart';
 import 'package:urbansensor/src/models/project.dart';
 import 'package:urbansensor/src/models/report.dart';
+import 'package:urbansensor/src/preferences/project_preferences.dart';
 import 'package:urbansensor/src/services/api_project.dart';
 import 'package:urbansensor/src/services/api_report.dart';
 import 'package:urbansensor/src/streams/report_stream.dart';
@@ -92,7 +93,7 @@ class _ProjectPageState extends State<ProjectPage> {
       child: Scaffold(
           extendBodyBehindAppBar: true,
           extendBody: true,
-          appBar: const BackAppBar(),
+          appBar: deleting ? null : const BackAppBar(),
           body: SafeArea(
             child: Center(
               child: Stack(
@@ -280,6 +281,10 @@ class _ProjectPageState extends State<ProjectPage> {
       case ProjectSettingItem.OpenInMap:
         if (project?.reportsCount == 0) {
         } else {
+          ProjectPreferences preferences = ProjectPreferences();
+
+          preferences.setProject = project;
+
           Navigator.pushNamed(context, 'projectReports', arguments: project);
         }
         break;
