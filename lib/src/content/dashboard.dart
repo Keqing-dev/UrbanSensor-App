@@ -37,6 +37,8 @@ class _DashboardState extends State<Dashboard> {
         await apiReport.getLatestReport();
         setState(() {});
       },
+      color: Colors.white,
+      backgroundColor: Palettes.lightBlue,
       child: ListView(
         children: [
           const ProfileInfo(),

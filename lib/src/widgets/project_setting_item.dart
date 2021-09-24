@@ -5,8 +5,9 @@ class ProjectSettingItem {
   static const String OpenInMap = 'Abrir en mapa';
 
   static const List<String> options = [
-    Delete,
-    Download,
+    Modify,
     OpenInMap,
+    Download,
+    Delete,
   ];
 }

@@ -1,4 +1,8 @@
+import 'dart:isolate';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:unicons/unicons.dart';
@@ -7,6 +11,8 @@ import 'package:urbansensor/src/services/api_report.dart';
 import 'package:urbansensor/src/utils/format_date.dart';
 import 'package:urbansensor/src/utils/palettes.dart';
 import 'package:urbansensor/src/utils/shadow.dart';
+
+import '../snack_bar_c.dart';
 
 class ReportCard extends StatefulWidget {
   const ReportCard({Key? key, required this.report}) : super(key: key);
@@ -18,6 +24,35 @@ class ReportCard extends StatefulWidget {
 
 class _ReportCardState extends State<ReportCard> {
   bool deleting = false;
+  final ReceivePort _port = ReceivePort();
+  int progress = 0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    IsolateNameServer.registerPortWithName(
+        _port.sendPort, 'downloader_send_port2');
+    _port.listen((dynamic data) {
+      progress = data[2];
+      setState(() {});
+    });
+
+    FlutterDownloader.registerCallback(downloadCallback);
+  }
+
+  @override
+  void dispose() {
+    IsolateNameServer.removePortNameMapping('downloader_send_port2');
+    super.dispose();
+  }
+
+  static void downloadCallback(
+      String id, DownloadTaskStatus status, int progress) {
+    final SendPort? send =
+        IsolateNameServer.lookupPortByName('downloader_send_port2');
+    send!.send([id, status, progress]);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,10 +104,10 @@ class _ReportCardState extends State<ReportCard> {
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
                             style:
-                                Theme.of(context).textTheme.subtitle2!.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                      color: Palettes.gray2,
-                                    ),
+                            Theme.of(context).textTheme.subtitle2!.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: Palettes.gray2,
+                            ),
                           ),
                           Text(
                             '${widget.report?.address}',
@@ -149,21 +184,24 @@ class _ReportCardState extends State<ReportCard> {
               if (tooltip.contains('Eliminar')) {
                 await _deleteReport();
               }
+              if (tooltip.contains('Descargar')) {
+                await _downloadReport();
+              }
             },
             child: SizedBox(
               height: double.infinity,
               child: deleting
                   ? Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: LoadingIndicator(
-                        indicatorType: Indicator.lineScalePulseOutRapid,
-                        colors: [Palettes.rose],
-                      ),
-                    )
+                padding: const EdgeInsets.all(20),
+                child: LoadingIndicator(
+                  indicatorType: Indicator.lineScalePulseOutRapid,
+                  colors: [Palettes.rose],
+                ),
+              )
                   : Icon(
-                      iconData,
-                      color: color,
-                    ),
+                iconData,
+                color: color,
+              ),
             ),
           ),
         ),
@@ -185,5 +223,11 @@ class _ReportCardState extends State<ReportCard> {
     });
 
     return true;
+  }
+
+  Future _downloadReport() async {
+    SnackBarC.showSnackbar(message: 'Descargando', context: context);
+    ApiReport api = ApiReport();
+    await api.downloadReport(reportId: '${widget.report?.id}');
   }
 }

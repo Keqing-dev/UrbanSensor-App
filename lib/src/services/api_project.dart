@@ -139,6 +139,25 @@ class ApiProject {
     return project;
   }
 
+  Future modifyProject(
+      {required String projectId, required String title}) async {
+    final _headersTk = await Api().getHeadersTk();
+
+    final res = await http.patch(Uri.parse('$_url/project'),
+        headers: _headersTk,
+        body: jsonEncode({"name": title, "id": projectId}));
+
+    print('modifyProject() STATUS CODE: ${res.statusCode}');
+
+    if (res.statusCode != 200) {
+      return false;
+    }
+
+    Project? project = ProjectRes.fromJson(json.decode(res.body)).data;
+
+    return project;
+  }
+
   Future downloadReports({required String projectId}) async {
     final _headersTk = await Api().getHeadersTk();
 

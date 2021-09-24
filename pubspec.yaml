@@ -42,7 +42,6 @@ dependencies:
   jiffy: ^4.1.0
   intl: ^0.17.0
   unicons: ^2.0.1
-  flutter_speed_dial: ^4.3.0
   validators: ^3.0.0
   timezone: ^0.8.0
   image_picker: ^0.8.4+1

@@ -141,11 +141,21 @@ class _ProjectReportsState extends State<ProjectReports> {
                   return Center(
                     child: SizedBox(
                       width: 100,
-                      child: LoadingIndicator(
-                        indicatorType: Indicator.ballRotateChase,
-                        colors: [
-                          Palettes.gray2,
-                          Colors.lightBlue,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          LoadingIndicator(
+                            indicatorType: Indicator.ballRotateChase,
+                            colors: [
+                              Palettes.gray2,
+                              Colors.lightBlue,
+                            ],
+                          ),
+                          Text(
+                            'Cargando ${project.reportsCount} reportes',
+                            textAlign: TextAlign.center,
+                          )
                         ],
                       ),
                     ),
