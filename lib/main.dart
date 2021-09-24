@@ -5,7 +5,6 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:provider/provider.dart';
 import 'package:urbansensor/src/pages/create_project.dart';
-import 'package:urbansensor/src/pages/create_report_page.dart';
 import 'package:urbansensor/src/pages/home.dart';
 import 'package:urbansensor/src/pages/login_page.dart';
 import 'package:urbansensor/src/pages/project_page.dart';
@@ -82,7 +81,7 @@ class MyApp extends StatelessWidget {
           'report': (BuildContext context) => const ReportPage(),
           'projectReports': (BuildContext context) => const ProjectReports(),
           'test': (BuildContext context) => const TestComponents(),
-          'createReport': (BuildContext context) => const CreateReportPage(),
+          // 'createReport': (BuildContext context) => const CreateReportPage(fileType: FileType.photo,),
         },
       ),
     );

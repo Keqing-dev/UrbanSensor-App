@@ -42,7 +42,7 @@ class Project {
   String? _id;
   String? _name;
   String? _createdAt;
-  int? _reportsCount;
+  String? _reportsCount;
 
   String? get id => _id;
 
@@ -50,9 +50,9 @@ class Project {
 
   String? get createdAt => _createdAt;
 
-  int? get reportsCount => _reportsCount;
+  String? get reportsCount => _reportsCount;
 
-  Project({String? id, String? name, String? createdAt, int? reportsCount}) {
+  Project({String? id, String? name, String? createdAt, String? reportsCount}) {
     _id = id;
     _name = name;
     _createdAt = createdAt;

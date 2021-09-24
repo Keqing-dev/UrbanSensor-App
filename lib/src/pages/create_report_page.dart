@@ -9,14 +9,21 @@ import 'package:loading_indicator/loading_indicator.dart';
 import 'package:location/location.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:unicons/unicons.dart';
+import 'package:urbansensor/src/pages/video_viewer.dart';
 import 'package:urbansensor/src/utils/format_date.dart';
 import 'package:urbansensor/src/utils/theme.dart';
+import 'package:urbansensor/src/widgets/file_type.dart';
 import 'package:urbansensor/src/widgets/navigators/back_app_bar.dart';
+import 'package:urbansensor/src/widgets/snack_bar_c.dart';
+import 'package:video_player/video_player.dart';
 
 class CreateReportPage extends StatefulWidget {
   const CreateReportPage({
     Key? key,
+    required this.fileType,
   }) : super(key: key);
+
+  final FileType fileType;
 
   @override
   State<CreateReportPage> createState() => _CreateReportPageState();
@@ -24,6 +31,7 @@ class CreateReportPage extends StatefulWidget {
 
 class _CreateReportPageState extends State<CreateReportPage> {
   File? _image;
+  File? _video;
   String? _dateTime;
   LatLng? _latLng;
   String? _address;
@@ -32,12 +40,40 @@ class _CreateReportPageState extends State<CreateReportPage> {
   BitmapDescriptor? mapMarker;
   Completer<GoogleMapController> _controller = Completer();
 
+  bool isVideo = false;
+  late VideoPlayerController _videoController;
+
   @override
   void initState() {
     super.initState();
     // _compressImage();
     _setCustomMarker();
-    _captureData();
+    switch (widget.fileType) {
+      case FileType.photo:
+        _capturePhoto();
+        break;
+      case FileType.video:
+        _captureVideo();
+        break;
+      case FileType.mic:
+        break;
+      default:
+        _capturePhoto();
+        break;
+    }
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _image?.delete();
+    _video?.delete();
+    _video = null;
+    _image = null;
+    _videoController.dispose();
+    print('DISPOSE');
+
+    super.dispose();
   }
 
   // _compressImage() async {
@@ -65,6 +101,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
       body: Builder(builder: (context) {
         return SafeArea(
           child: _image == null &&
+                  _video == null &&
                   _dateTime == null &&
                   _latLng == null &&
                   _address == null
@@ -99,17 +136,19 @@ class _CreateReportPageState extends State<CreateReportPage> {
                         content: _address!,
                       ),
                       const SizedBox(height: 16.0),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 164,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8.0),
-                          child: Image.file(
-                            _image!,
-                            fit: BoxFit.fitWidth,
-                          ),
-                        ),
-                      ),
+                      _video != null
+                          ? _videoPreview()
+                          : SizedBox(
+                              width: double.infinity,
+                              height: 164,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8.0),
+                                child: Image.file(
+                                  _image!,
+                                  fit: BoxFit.fitWidth,
+                                ),
+                              ),
+                            ),
                       const SizedBox(height: 16.0),
                       Container(
                         width: double.infinity,
@@ -222,7 +261,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
         CameraPosition(target: latLng, zoom: 15.8)));
   }
 
-  void _captureData() async {
+  void _capturePhoto() async {
     final ImagePicker _picker = ImagePicker();
     Location location = Location();
 
@@ -270,5 +309,112 @@ class _CreateReportPageState extends State<CreateReportPage> {
         Navigator.of(context).pop();
       }
     }
+  }
+
+  void _captureVideo() async {
+    print('VIDEOOO');
+    final ImagePicker _picker = ImagePicker();
+    Location location = Location();
+    bool _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+
+    if (await Permission.camera.request().isGranted) {
+      // Capture a video
+      final XFile? video = await _picker.pickVideo(
+          source: ImageSource.camera, maxDuration: const Duration(seconds: 10));
+      if (video == null) {
+        Navigator.of(context).pop();
+      }
+
+      File? videoPreview = File.fromUri(Uri(path: video?.path));
+      LocationData _location = await location.getLocation();
+
+      geo.Placemark placemark = (await geo.placemarkFromCoordinates(
+        _location.latitude!,
+        _location.longitude!,
+        localeIdentifier: "es_CL",
+      ))
+          .first;
+
+      setState(() {
+        _video = videoPreview;
+        isVideo = true;
+        _dateTime = FormatDate.dateTime(DateTime.now());
+        _latLng = LatLng(_location.latitude!, _location.longitude!);
+        _address =
+            "${placemark.street}, ${placemark.locality}, ${placemark.administrativeArea}";
+        _kGooglePlex = CameraPosition(
+          target: LatLng(_location.latitude!, _location.longitude!),
+          zoom: 15.8,
+        );
+        _markers.add(Marker(
+          icon: mapMarker!,
+          markerId: MarkerId('Yoshida'),
+          position: LatLng(_location.latitude!, _location.longitude!),
+        ));
+      });
+
+      _videoController = VideoPlayerController.network(_video!.path)
+        ..initialize().then((_) {
+          setState(() {}); //when your thumbnail will show.
+        });
+    } else {
+      Navigator.of(context).pop();
+      SnackBarC.showSnackbar(
+          message: 'Debes aceptar los permisos', context: context);
+    }
+  }
+
+  Widget _videoPreview() {
+    return Stack(
+      children: [
+        SizedBox(
+          height: 164,
+          width: double.infinity,
+          child: InkWell(
+            onTap: () {
+              showGeneralDialog(
+                  context: context,
+                  pageBuilder: (_, _1, _2) => VideoViewer(file: _video!));
+            },
+            child: FittedBox(
+              fit: BoxFit.cover,
+              clipBehavior: Clip.hardEdge,
+              alignment: Alignment.centerLeft,
+              child: SizedBox(
+                height: 300,
+                width: 300,
+                child: VideoPlayer(_videoController),
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: 0,
+          top: 0,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: Container(
+                width: 40,
+                height: 40,
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: Colors.redAccent,
+                  borderRadius: BorderRadius.circular(100),
+                ),
+                child: const Icon(
+                  UniconsLine.play,
+                  color: Colors.white,
+                )),
+          ),
+        ),
+      ],
+    );
   }
 }

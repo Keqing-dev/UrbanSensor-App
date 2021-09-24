@@ -104,10 +104,10 @@ class _ReportCardState extends State<ReportCard> {
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
                             style:
-                            Theme.of(context).textTheme.subtitle2!.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: Palettes.gray2,
-                            ),
+                                Theme.of(context).textTheme.subtitle2!.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: Palettes.gray2,
+                                    ),
                           ),
                           Text(
                             '${widget.report?.address}',
@@ -162,9 +162,10 @@ class _ReportCardState extends State<ReportCard> {
     );
   }
 
-  Widget _action({required IconData iconData,
-    required Color color,
-    required String tooltip}) {
+  Widget _action(
+      {required IconData iconData,
+      required Color color,
+      required String tooltip}) {
     return Tooltip(
       message: tooltip,
       child: Container(
@@ -192,16 +193,16 @@ class _ReportCardState extends State<ReportCard> {
               height: double.infinity,
               child: deleting
                   ? Padding(
-                padding: const EdgeInsets.all(20),
-                child: LoadingIndicator(
-                  indicatorType: Indicator.lineScalePulseOutRapid,
-                  colors: [Palettes.rose],
-                ),
-              )
+                      padding: const EdgeInsets.all(20),
+                      child: LoadingIndicator(
+                        indicatorType: Indicator.lineScalePulseOutRapid,
+                        colors: [Palettes.rose],
+                      ),
+                    )
                   : Icon(
-                iconData,
-                color: color,
-              ),
+                      iconData,
+                      color: color,
+                    ),
             ),
           ),
         ),

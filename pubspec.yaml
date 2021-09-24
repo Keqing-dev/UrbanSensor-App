@@ -54,6 +54,8 @@ dependencies:
   flutter_image_compress: ^1.1.0
   google_maps_flutter: ^2.0.10
   google_maps_cluster_manager: ^3.0.0+1
+  chewie: ^1.1.0
+  video_player: ^2.2.5
 
 dev_dependencies:
   flutter_test:

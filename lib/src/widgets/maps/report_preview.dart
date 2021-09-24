@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:unicons/unicons.dart';
 import 'package:urbansensor/src/models/report.dart';
+import 'package:urbansensor/src/pages/video_viewer.dart';
 import 'package:urbansensor/src/utils/format_date.dart';
+import 'package:urbansensor/src/utils/general_util.dart';
 import 'package:urbansensor/src/utils/loading_indicators_c.dart';
 import 'package:urbansensor/src/utils/palettes.dart';
 
@@ -14,6 +18,8 @@ class ReportPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool isVideo = GeneralUtil.isVideoFormat('${reportSelected?.file}');
+
     return Container(
       decoration: const BoxDecoration(
         boxShadow: [
@@ -36,37 +42,55 @@ class ReportPreview extends StatelessWidget {
                   children: [
                     Stack(
                       children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(100),
-                          child: CachedNetworkImage(
-                            imageUrl: '${reportSelected?.file}',
-                            width: 60,
-                            height: 60,
-                            fit: BoxFit.cover,
-                            alignment: Alignment.center,
-                            placeholder: (context, url) =>
-                                LoadingIndicatorsC.ballScale,
-                            errorWidget: (_, _1, _2) => Icon(
-                              UniconsLine.image_broken,
-                              color: Palettes.rose,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          right: 0,
-                          bottom: 0,
-                          child: Container(
-                            padding: const EdgeInsets.all(5),
-                            decoration: BoxDecoration(
-                              color: Palettes.lightBlue,
-                              borderRadius: BorderRadius.circular(100),
-                            ),
-                            child: const Icon(
-                              UniconsLine.search_plus,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
+                        isVideo
+                            ? Container(
+                                width: 60,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(100),
+                                  border: Border.all(
+                                    color: Palettes.lightBlue,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Icon(
+                                  UniconsLine.play,
+                                  color: Palettes.lightBlue,
+                                ),
+                              )
+                            : ClipRRect(
+                                borderRadius: BorderRadius.circular(100),
+                                child: CachedNetworkImage(
+                                  imageUrl: '${reportSelected?.file}',
+                                  width: 60,
+                                  height: 60,
+                                  fit: BoxFit.cover,
+                                  alignment: Alignment.center,
+                                  placeholder: (context, url) =>
+                                      LoadingIndicatorsC.ballScale,
+                                  errorWidget: (_, _1, _2) => Icon(
+                                    UniconsLine.image_broken,
+                                    color: Palettes.rose,
+                                  ),
+                                ),
+                              ),
+                        isVideo
+                            ? Container()
+                            : Positioned(
+                                right: 0,
+                                bottom: 0,
+                                child: Container(
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    color: Palettes.lightBlue,
+                                    borderRadius: BorderRadius.circular(100),
+                                  ),
+                                  child: const Icon(
+                                    UniconsLine.search_plus,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
                         Positioned.fill(
                           child: Material(
                             color: Colors.transparent,
@@ -77,7 +101,12 @@ class ReportPreview extends StatelessWidget {
                                   context: context,
                                   pageBuilder: (context, animation,
                                           secondaryAnimation) =>
-                                      _imageViewer(context),
+                                      isVideo
+                                          ? VideoViewer(
+                                              file: File('null'),
+                                              url: reportSelected?.file,
+                                            )
+                                          : _imageViewer(context),
                                 );
                               },
                             ),
@@ -174,9 +203,9 @@ class ReportPreview extends StatelessWidget {
       title: Text(
         'Información',
         style: Theme.of(context).textTheme.subtitle1!.copyWith(
-              fontWeight: FontWeight.w600,
-              color: Palettes.gray2,
-            ),
+          fontWeight: FontWeight.w600,
+          color: Palettes.gray2,
+        ),
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -226,10 +255,9 @@ class ReportPreview extends StatelessWidget {
     );
   }
 
-  Widget _label(
-      {required IconData iconData,
-      required String label,
-      required BuildContext context}) {
+  Widget _label({required IconData iconData,
+    required String label,
+    required BuildContext context}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -245,8 +273,8 @@ class ReportPreview extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               maxLines: 3,
               style: Theme.of(context).textTheme.subtitle2!.copyWith(
-                    color: Palettes.gray2,
-                  ),
+                color: Palettes.gray2,
+              ),
             ),
           ),
         ),
