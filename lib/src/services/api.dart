@@ -22,11 +22,6 @@ class Api {
     'Content-Type': 'application/json; charset=UTF-8',
   };
 
-  /*final Map<String, String> headersTk = {
-    'Content-Type': 'application/json; charset=UTF-8',
-    'Authorization': 'Bearer',
-  };*/
-
   set token(String value) {
     _token = value;
   }

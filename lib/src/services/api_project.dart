@@ -76,6 +76,21 @@ class ApiProject {
     return true;
   }
 
+  Future<List<Project>?> getProjectsList() async {
+    final _headersTk = await Api().getHeadersTk();
+    final res = await http.get(Uri.parse('$_url/project?page=$_page'),
+        headers: _headersTk);
+
+    if (res.statusCode != 200) {
+      return null;
+    }
+
+    ProjectPaginationRes? projectRes =
+        ProjectPaginationRes.fromJson(json.decode(res.body));
+
+    return projectRes.content;
+  }
+
   Future searchMyProjects({required String name}) async {
     final _headersTk = await Api().getHeadersTk();
     _isSearching = true;
