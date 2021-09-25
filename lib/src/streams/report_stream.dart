@@ -1,37 +1,49 @@
-
-
 import 'dart:async';
 
 import 'package:urbansensor/src/models/report.dart';
 
-
-
-class ReportStream{
-
+class ReportStream {
   static final ReportStream _reportStream = ReportStream._();
 
-
-  factory ReportStream(){
+  factory ReportStream() {
     return _reportStream;
   }
 
   ReportStream._();
 
-  StreamController<List<Report>?> _reportsStreamController =
+  StreamController<List<Report>?> _reportsStreamC =
       StreamController.broadcast();
 
-  Function(List<Report>?) get reportsSink => _reportsStreamController.sink.add;
+  Function(List<Report>?) get reportsSink => _reportsStreamC.sink.add;
 
-  Stream<List<Report>?> get reportsStream => _reportsStreamController.stream;
+  Stream<List<Report>?> get reportsStream => _reportsStreamC.stream;
 
-  StreamController<List<Report>?> _reportsProjectStreamController =
+  StreamController<List<Report>?> _reportsLatestStreamC =
+      StreamController.broadcast();
+
+  Function(List<Report>?) get reportsLatestSink =>
+      _reportsLatestStreamC.sink.add;
+
+  Stream<List<Report>?> get reportsLatestStream => _reportsLatestStreamC.stream;
+
+  //Maps
+  StreamController<List<Report>?> _reportsProjectStreamC =
       StreamController.broadcast();
 
   Function(List<Report>?) get reportsProjectSink =>
-      _reportsProjectStreamController.sink.add;
+      _reportsProjectStreamC.sink.add;
 
   Stream<List<Report>?> get reportsProjectStream =>
-      _reportsProjectStreamController.stream;
+      _reportsProjectStreamC.stream;
+
+  StreamController<List<Report>?> _reportsProjectMapStreamC =
+      StreamController.broadcast();
+
+  Function(List<Report>?) get reportsProjectMapSink =>
+      _reportsProjectMapStreamC.sink.add;
+
+  Stream<List<Report>?> get reportsProjectMapStream =>
+      _reportsProjectMapStreamC.stream;
 
   StreamController<bool> _reportsLoadedStreamController =
       StreamController.broadcast();
@@ -42,10 +54,10 @@ class ReportStream{
   Stream<bool> get reportLoadedStream => _reportsLoadedStreamController.stream;
 
   void disposeStream() {
-    _reportsStreamController.close();
+    _reportsStreamC.close();
+    _reportsLatestStreamC.close();
     _reportsLoadedStreamController.close();
-    _reportsProjectStreamController.close();
+    _reportsProjectMapStreamC.close();
+    _reportsProjectStreamC.close();
   }
-
-
 }

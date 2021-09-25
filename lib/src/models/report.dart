@@ -1,3 +1,5 @@
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:urbansensor/src/models/place.dart';
 import 'package:urbansensor/src/models/user.dart';
 
 class ReportRes {
@@ -5,14 +7,13 @@ class ReportRes {
   List<Report>? _content;
 
   bool? get success => _success;
+
   List<Report>? get content => _content;
 
-  ReportRes({
-      bool? success, 
-      List<Report>? content}){
+  ReportRes({bool? success, List<Report>? content}) {
     _success = success;
     _content = content;
-}
+  }
 
   ReportRes.fromJson(dynamic json) {
     _success = json['success'];
@@ -32,7 +33,6 @@ class ReportRes {
     }
     return map;
   }
-
 }
 
 class Report {
@@ -114,5 +114,43 @@ class Report {
     return map;
   }
 
-}
+  static List<Place>? toPlace(List<Report> reports) {
+    List<Place>? places = [];
+    for (int i = 0; i < reports.length; i++) {
+      places.add(Place(
+        id: '${reports[i].id}',
+        latLng: LatLng(
+            double.parse('${reports[i].latitude}'),
+            double.parse(
+              '${reports[i].longitude}',
+            )),
+        categories: '${reports[i].categories}',
+        observations: '${reports[i].observations}',
+        file: '${reports[i].file}',
+        timestamp: '${reports[i].timestamp}',
+        address: '${reports[i].address}',
+      ));
+    }
+    return places;
+  }
 
+  Report.fromPlace(Place place) {
+    _id = place.id;
+    _address = place.address;
+    _file = place.file;
+    _latitude = '${place.latLng.latitude}';
+    _longitude = '${place.latLng.longitude}';
+    _categories = place.categories;
+    _timestamp = place.timestamp;
+    _observations = place.observations;
+  }
+
+  static List<Report>? fromPlaceList(List<Place> places) {
+    List<Report>? reports = [];
+    for (Place place in places) {
+      reports.add(Report.fromPlace(place));
+    }
+
+    return reports;
+  }
+}

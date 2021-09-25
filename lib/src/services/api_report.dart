@@ -1,6 +1,10 @@
-import 'package:http/http.dart' as http;
-import 'package:urbansensor/src/models/report.dart';
 import 'dart:convert';
+
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:urbansensor/src/models/report.dart';
 import 'package:urbansensor/src/services/api.dart';
 import 'package:urbansensor/src/streams/report_stream.dart';
 
@@ -45,7 +49,7 @@ class ApiReport {
     List<Report>? reports = reportRes.content;
 
     _latestReports = reports;
-    _stream.reportsSink(reports);
+    _stream.reportsLatestSink(reports);
 
     return reports;
   }
@@ -58,7 +62,6 @@ class ApiReport {
         headers: _headersTk);
 
     print('getReportsByProject() STATUS CODE: ${res.statusCode}');
-    print(_page);
 
     if (res.statusCode != 200) {
       if (_page == 1) {
@@ -94,11 +97,40 @@ class ApiReport {
       return false;
     }
 
-    _latestReports?.removeWhere((element) => element.id == reportId);
-    _stream.reportsSink(_latestReports);
+    _allReports?.removeWhere((element) => element.id == reportId);
+    _stream.reportsSink(_allReports);
 
     _stream.reportLoadedSink(true);
     return true;
+  }
+
+  Future downloadReport({required String reportId}) async {
+    final _headersTk = await Api().getHeadersTk();
+
+    Map<String, String> queryParameters = {'reportId': reportId.trim()};
+    final uri = Uri.https(_domain, '/csv/report', queryParameters);
+
+    if (await Permission.storage.request().isGranted) {
+      final res = await http.get(uri, headers: _headersTk);
+
+      print('downloadReportCSV() STATUS CODE: ${res.statusCode}');
+
+      if (res.statusCode != 200) {
+        return false;
+      }
+
+      final baseStorage = await getExternalStorageDirectory();
+      final taskId = await FlutterDownloader.enqueue(
+        url: uri.toString(),
+        headers: _headersTk,
+        savedDir: baseStorage!.path,
+        showNotification: true,
+        openFileFromNotification: true,
+      );
+      return true;
+    }
+
+    return false;
   }
 
   Future clean() async {
@@ -109,35 +141,36 @@ class ApiReport {
     _allReports = [];
   }
 
-  Future getReportsByProjectMap({required String projectId}) async {
+  Future refreshAllReports(String projectId) async {
+    clean();
+    await getReportsByProject(projectId: projectId);
+  }
+
+  Future<List<Report>?> getReportsByProjectMap(
+      {required String projectId}) async {
     final _headersTk = await Api().getHeadersTk();
     _stream.reportLoadedSink(false);
     final res = await http.get(
-        Uri.parse('$_url/report/project?id=${projectId}&page=1'),
+        Uri.parse('$_url/report/project/last?id=$projectId'),
         headers: _headersTk);
 
     print('getReportsByProjectMap() STATUS CODE: ${res.statusCode}');
-    // print(_page);
 
     if (res.statusCode != 200) {
       if (_page == 1) {
         _stream.reportsProjectSink([]);
       } else {}
       _stream.reportLoadedSink(true);
-      return false;
+      return [];
     }
-
-    _page++;
 
     ReportRes reportRes = ReportRes.fromJson(json.decode(res.body));
 
     List<Report>? reports = reportRes.content;
-
-    // _allReportsByProject?.addAll(reports!);
-    _stream.reportsProjectSink(reports);
+    _stream.reportsProjectMapSink(reports);
     _stream.reportLoadedSink(true);
 
-    return true;
+    return reports;
   }
 
   bool get isSearching => _isSearching;

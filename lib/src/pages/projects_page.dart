@@ -7,6 +7,7 @@ import 'package:urbansensor/src/services/api_project.dart';
 import 'package:urbansensor/src/streams/project_stream.dart';
 import 'package:urbansensor/src/utils/debouncer.dart';
 import 'package:urbansensor/src/utils/loading_indicators_c.dart';
+import 'package:urbansensor/src/utils/palettes.dart';
 import 'package:urbansensor/src/widgets/cards/project_card.dart';
 import 'package:urbansensor/src/widgets/input_search.dart';
 import 'package:urbansensor/src/widgets/title_page.dart';
@@ -62,6 +63,8 @@ class _ProjectsPageState extends State<ProjectsPage> {
         apiSuccess = true;
         apiProject.refreshAllMyProjects();
       },
+      color: Colors.white,
+      backgroundColor: Palettes.lightBlue,
       edgeOffset: 20,
       child: Column(
         children: [

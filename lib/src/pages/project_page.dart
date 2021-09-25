@@ -7,14 +7,17 @@ import 'package:loading_indicator/loading_indicator.dart';
 import 'package:unicons/unicons.dart';
 import 'package:urbansensor/src/models/project.dart';
 import 'package:urbansensor/src/models/report.dart';
+import 'package:urbansensor/src/preferences/project_preferences.dart';
 import 'package:urbansensor/src/services/api_project.dart';
 import 'package:urbansensor/src/services/api_report.dart';
 import 'package:urbansensor/src/streams/report_stream.dart';
 import 'package:urbansensor/src/utils/loading_indicators_c.dart';
 import 'package:urbansensor/src/utils/palettes.dart';
 import 'package:urbansensor/src/widgets/cards/report_card.dart';
+import 'package:urbansensor/src/widgets/input.dart';
 import 'package:urbansensor/src/widgets/navigators/back_app_bar.dart';
 import 'package:urbansensor/src/widgets/project_setting_item.dart';
+import 'package:urbansensor/src/widgets/snack_bar_c.dart';
 import 'package:urbansensor/src/widgets/title_page.dart';
 
 class ProjectPage extends StatefulWidget {
@@ -27,12 +30,14 @@ class ProjectPage extends StatefulWidget {
 class _ProjectPageState extends State<ProjectPage> {
   ApiReport apiReport = ApiReport();
   ApiProject apiProject = ApiProject();
-  ReportStream reportStream = ReportStream();
+  ReportStream stream = ReportStream();
   ScrollController scrollController = ScrollController();
   bool apiSuccess = true;
   final ReceivePort _port = ReceivePort();
   int progress = 0;
   bool deleting = false;
+  bool isUpdating = false;
+  String _editTitle = '';
 
   @override
   void initState() {
@@ -41,8 +46,6 @@ class _ProjectPageState extends State<ProjectPage> {
     IsolateNameServer.registerPortWithName(
         _port.sendPort, 'downloader_send_port');
     _port.listen((dynamic data) {
-      String id = data[0];
-      DownloadTaskStatus status = data[1];
       progress = data[2];
 
       setState(() {});
@@ -88,107 +91,124 @@ class _ProjectPageState extends State<ProjectPage> {
     });
 
     return WillPopScope(
-      onWillPop: () async => false,
-      child: Scaffold(
-          extendBodyBehindAppBar: true,
-          extendBody: true,
-          appBar: const BackAppBar(),
-          body: SafeArea(
-            child: Center(
-              child: Stack(
-                children: [
-                  Visibility(
-                    visible: !deleting,
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 5),
-                          child: Row(
+      onWillPop: () async => !deleting,
+      child: RefreshIndicator(
+        onRefresh: () => apiReport.refreshAllReports('${project.id}'),
+        color: Colors.white,
+        backgroundColor: Palettes.lightBlue,
+        child: Scaffold(
+            extendBodyBehindAppBar: true,
+            extendBody: true,
+            appBar: deleting ? null : const BackAppBar(),
+            body: SafeArea(
+              child: Center(
+                child: Stack(
+                  children: [
+                    Visibility(
+                      visible: !deleting,
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 5),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: TitlePage(
+                                    title: '${project.name}',
+                                    caption: '${project.reportsCount} Reportes',
+                                  ),
+                                ),
+                                _popUpMenu(project, context),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: Container(
+                              margin: const EdgeInsets.only(top: 15),
+                              child: _scrollable(),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Positioned(
+                      child: Visibility(
+                        visible: deleting,
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Expanded(
-                                child: TitlePage(
-                                  title: '${project.name}',
-                                  caption: '${project.reportsCount} Reportes',
+                              SizedBox(
+                                width: 100,
+                                height: 100,
+                                child: LoadingIndicator(
+                                  indicatorType: Indicator.ballBeat,
                                 ),
                               ),
-                              _popUpMenu(project, context),
+                              const Text('Eliminando'),
                             ],
                           ),
                         ),
-                        Padding(
-                            padding: const EdgeInsets.only(
-                                left: 0, right: 16, top: 30),
-                            child: ListTile(
-                              title: Text(
-                                'Reportes',
-                                style: Theme.of(context).textTheme.subtitle1!,
-                              ),
-                              subtitle: Row(
-                                children: [
-                                  Image.asset(
-                                    'assets/img/swipe-right.png',
-                                    width: 25,
-                                    color: Palettes.lightBlue,
-                                  ),
-                                  Text("Desliza para ver las opciones"),
-                                ],
-                              ),
-                            )),
-                        Expanded(
-                          child: Container(
-                            margin: const EdgeInsets.only(top: 15),
-                            child: _scrollable(),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Positioned(
-                    child: Visibility(
-                      visible: deleting,
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              width: 100,
-                              height: 100,
-                              child: LoadingIndicator(
-                                indicatorType: Indicator.ballBeat,
-                              ),
-                            ),
-                            const Text('Eliminando'),
-                          ],
-                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          )),
+            )),
+      ),
     );
   }
 
   Widget _scrollable() {
     return StreamBuilder(
-      stream: reportStream.reportsStream,
+      stream: stream.reportsStream,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.hasData) {
           List<Report>? reports = snapshot.data;
-          return CustomScrollView(
-            controller: scrollController,
-            slivers: [
-              SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) => Container(
-                    margin: const EdgeInsets.only(
-                        bottom: 16.0, left: 16, right: 16),
-                    child: ReportCard(report: reports?[index]),
+          return Stack(
+            children: [
+              CustomScrollView(
+                controller: scrollController,
+                slivers: [
+                  SliverList(
+                      delegate: SliverChildListDelegate([
+                    ListTile(
+                      title: Text(
+                        'Reportes',
+                        style: Theme.of(context)
+                            .textTheme
+                            .subtitle1!
+                            .copyWith(fontWeight: FontWeight.w500),
+                      ),
+                      subtitle: Row(
+                        children: [
+                          Image.asset(
+                            'assets/img/swipe-right.png',
+                            width: 25,
+                            color: Palettes.lightBlue,
+                          ),
+                          Text("Desliza para ver las opciones"),
+                        ],
+                      ),
+                    ),
+                  ])),
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) => Container(
+                        margin: const EdgeInsets.only(
+                            bottom: 16.0, left: 16, right: 16),
+                        child: ReportCard(report: reports?[index]),
+                      ),
+                      childCount: reports?.length,
+                    ),
                   ),
-                  childCount: reports?.length,
-                ),
+                ],
+              ),
+              Positioned(
+                bottom: 0,
+                left: (MediaQuery.of(context).size.width / 2 - 25),
+                child: _loading(),
               ),
             ],
           );
@@ -261,6 +281,11 @@ class _ProjectPageState extends State<ProjectPage> {
           UniconsLine.map,
           color: Palettes.green2,
         );
+      case ProjectSettingItem.Modify:
+        return Icon(
+          UniconsLine.edit,
+          color: Palettes.lightBlue,
+        );
       default:
         return Icon(UniconsLine.file_download);
     }
@@ -273,13 +298,73 @@ class _ProjectPageState extends State<ProjectPage> {
         _deleteProject(project, context);
         break;
       case ProjectSettingItem.Download:
-        bool success =
-            await apiProject.downloadReports(projectId: '${project?.id}');
+        SnackBarC.showSnackbar(message: 'Descargando', context: context);
+        await apiProject.downloadReports(projectId: '${project?.id}');
         break;
+      case ProjectSettingItem.Modify:
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            backgroundColor: Color.fromRGBO(250, 250, 250, 1),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Editar'),
+                Icon(UniconsLine.edit),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Input(
+                  label: 'Nombre del proyecto',
+                  placeholder: '${project?.name}',
+                  func: (value) {
+                    _editTitle = value;
+                    setState(() {});
+                    print(value);
+                  },
+                ),
+              ],
+            ),
+            actions: [
+              isUpdating
+                  ? LoadingIndicatorsC.ballRotateChaseSmall
+                  : InkWell(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text('Cancelar'),
+                    ),
+              !isUpdating
+                  ? InkWell(
+                      onTap: () async {
+                        project = await apiProject.modifyProject(
+                            projectId: '${project?.id}', title: _editTitle);
+                        SnackBarC.showSnackbar(
+                            message: 'Modificado con exito.', context: context);
+                        Navigator.pop(context);
+                        Navigator.popAndPushNamed(context, 'project',
+                            arguments: project);
+                      },
+                      child: Text(
+                        'Modificar',
+                        style: TextStyle(color: Palettes.lightBlue),
+                      ),
+                    )
+                  : Container(),
+            ],
+          ),
+        );
 
+        break;
       case ProjectSettingItem.OpenInMap:
         if (project?.reportsCount == 0) {
+          SnackBarC.showSnackbar(
+              message: 'No existen reportes.', context: context);
         } else {
+          ProjectPreferences preferences = ProjectPreferences();
+          preferences.setProject = project;
           Navigator.pushNamed(context, 'projectReports', arguments: project);
         }
         break;
@@ -295,7 +380,7 @@ class _ProjectPageState extends State<ProjectPage> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Text('Eliminar proyecto'),
+            const Text('Eliminar proyecto'),
             Icon(
               UniconsLine.trash_alt,
               color: Palettes.rose,
@@ -353,5 +438,19 @@ class _ProjectPageState extends State<ProjectPage> {
     );
 
     //
+  }
+
+  Widget _loading() {
+    return StreamBuilder(
+        stream: stream.reportLoadedStream,
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasData) {
+            return !snapshot.data
+                ? LoadingIndicatorsC.ballRotateChaseSmall
+                : Container();
+          } else {
+            return Container();
+          }
+        });
   }
 }

@@ -1,4 +1,8 @@
+import 'dart:isolate';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:unicons/unicons.dart';
@@ -7,6 +11,8 @@ import 'package:urbansensor/src/services/api_report.dart';
 import 'package:urbansensor/src/utils/format_date.dart';
 import 'package:urbansensor/src/utils/palettes.dart';
 import 'package:urbansensor/src/utils/shadow.dart';
+
+import '../snack_bar_c.dart';
 
 class ReportCard extends StatefulWidget {
   const ReportCard({Key? key, required this.report}) : super(key: key);
@@ -18,6 +24,35 @@ class ReportCard extends StatefulWidget {
 
 class _ReportCardState extends State<ReportCard> {
   bool deleting = false;
+  final ReceivePort _port = ReceivePort();
+  int progress = 0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    IsolateNameServer.registerPortWithName(
+        _port.sendPort, 'downloader_send_port2');
+    _port.listen((dynamic data) {
+      progress = data[2];
+      setState(() {});
+    });
+
+    FlutterDownloader.registerCallback(downloadCallback);
+  }
+
+  @override
+  void dispose() {
+    IsolateNameServer.removePortNameMapping('downloader_send_port2');
+    super.dispose();
+  }
+
+  static void downloadCallback(
+      String id, DownloadTaskStatus status, int progress) {
+    final SendPort? send =
+        IsolateNameServer.lookupPortByName('downloader_send_port2');
+    send!.send([id, status, progress]);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -127,9 +162,10 @@ class _ReportCardState extends State<ReportCard> {
     );
   }
 
-  Widget _action({required IconData iconData,
-    required Color color,
-    required String tooltip}) {
+  Widget _action(
+      {required IconData iconData,
+      required Color color,
+      required String tooltip}) {
     return Tooltip(
       message: tooltip,
       child: Container(
@@ -148,6 +184,9 @@ class _ReportCardState extends State<ReportCard> {
             onTap: () async {
               if (tooltip.contains('Eliminar')) {
                 await _deleteReport();
+              }
+              if (tooltip.contains('Descargar')) {
+                await _downloadReport();
               }
             },
             child: SizedBox(
@@ -185,5 +224,11 @@ class _ReportCardState extends State<ReportCard> {
     });
 
     return true;
+  }
+
+  Future _downloadReport() async {
+    SnackBarC.showSnackbar(message: 'Descargando', context: context);
+    ApiReport api = ApiReport();
+    await api.downloadReport(reportId: '${widget.report?.id}');
   }
 }

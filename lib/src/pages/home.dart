@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:unicons/unicons.dart';
 import 'package:urbansensor/src/content/dashboard.dart';
+import 'package:urbansensor/src/pages/create_report_page.dart';
 import 'package:urbansensor/src/pages/menu_page.dart';
 import 'package:urbansensor/src/pages/projects_page.dart';
 import 'package:urbansensor/src/providers/navigation_provider.dart';
 import 'package:urbansensor/src/widgets/expandable_fab.dart';
+import 'package:urbansensor/src/widgets/file_type.dart';
 import 'package:urbansensor/src/widgets/navigators/bottom_navigation_bar.dart';
 
 class Home extends StatelessWidget {
@@ -33,12 +35,27 @@ class Home extends StatelessWidget {
         ActionButton(
           onPressed: () {
             // captureImage(context);
-            Navigator.pushNamed(context, "createReport");
+            // Navigator.pushNamed(context, "createReport");
+
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const CreateReportPage(
+                          fileType: FileType.photo,
+                        )));
           },
           icon: const Icon(UniconsLine.image),
         ),
         ActionButton(
-          onPressed: () {},
+          onPressed: () {
+            // Navigator.pushNamed(context, "test", arguments: FileType.video);
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const CreateReportPage(
+                          fileType: FileType.video,
+                        )));
+          },
           icon: const Icon(UniconsLine.video),
         ),
       ]),

@@ -5,7 +5,6 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:provider/provider.dart';
 import 'package:urbansensor/src/pages/create_project.dart';
-import 'package:urbansensor/src/pages/create_report_page.dart';
 import 'package:urbansensor/src/pages/home.dart';
 import 'package:urbansensor/src/pages/login_page.dart';
 import 'package:urbansensor/src/pages/project_page.dart';
@@ -13,6 +12,7 @@ import 'package:urbansensor/src/pages/project_reports.dart';
 import 'package:urbansensor/src/pages/register_page.dart';
 import 'package:urbansensor/src/pages/report_page.dart';
 import 'package:urbansensor/src/pages/test_components.dart';
+import 'package:urbansensor/src/preferences/project_preferences.dart';
 import 'package:urbansensor/src/preferences/user_preferences.dart';
 import 'package:urbansensor/src/providers/navigation_provider.dart';
 import 'package:urbansensor/src/providers/project_provider.dart';
@@ -33,9 +33,13 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterDownloader.initialize(
       debug: false // optional: set false to disable printing logs to console
-  );
+      );
   final userPreferences = UserPreferences();
   await userPreferences.initPreferences();
+
+  final projectPreferences = ProjectPreferences();
+  await projectPreferences.initPreferences();
+
   await Jiffy.locale("es");
   runApp(const MyApp());
 }
@@ -77,7 +81,7 @@ class MyApp extends StatelessWidget {
           'report': (BuildContext context) => const ReportPage(),
           'projectReports': (BuildContext context) => const ProjectReports(),
           'test': (BuildContext context) => const TestComponents(),
-          'createReport': (BuildContext context) => const CreateReportPage(),
+          // 'createReport': (BuildContext context) => const CreateReportPage(fileType: FileType.photo,),
         },
       ),
     );

@@ -37,6 +37,8 @@ class _DashboardState extends State<Dashboard> {
         await apiReport.getLatestReport();
         setState(() {});
       },
+      color: Colors.white,
+      backgroundColor: Palettes.lightBlue,
       child: ListView(
         children: [
           const ProfileInfo(),
@@ -154,7 +156,7 @@ class _DashboardState extends State<Dashboard> {
     ReportStream stream = ReportStream();
 
     return StreamBuilder(
-        stream: stream.reportsStream,
+        stream: stream.reportsLatestStream,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             List<Report>? reports = snapshot.data;
