@@ -104,61 +104,71 @@ class _ProjectPageState extends State<ProjectPage> {
         child: Scaffold(
             extendBodyBehindAppBar: true,
             extendBody: true,
-            appBar: deleting ? null : const BackAppBar(),
+            appBar: deleting || isUpdating ? null : const BackAppBar(),
             body: SafeArea(
               child: Center(
-                child: Stack(
-                  children: [
-                    Visibility(
-                      visible: !deleting,
-                      child: Column(
+                child: isUpdating
+                    ? Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          LoadingIndicatorsC.ballRotateChase,
+                          Text('$_editTitle'),
+                          const Text('Actualizando'),
+                        ],
+                      )
+                    : Stack(
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 5),
-                            child: Row(
+                          Visibility(
+                            visible: !deleting,
+                            child: Column(
                               children: [
-                                Expanded(
-                                  child: TitlePage(
-                                    title: '${project.name}',
-                                    caption: '${project.reportsCount} Reportes',
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 5),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: TitlePage(
+                                          title: '${project.name}',
+                                          caption:
+                                              '${project.reportsCount} Reportes',
+                                        ),
+                                      ),
+                                      _popUpMenu(project, context),
+                                    ],
                                   ),
                                 ),
-                                _popUpMenu(project, context),
+                                Expanded(
+                                  child: Container(
+                                    margin: const EdgeInsets.only(top: 15),
+                                    child: _scrollable(),
+                                  ),
+                                ),
                               ],
                             ),
                           ),
-                          Expanded(
-                            child: Container(
-                              margin: const EdgeInsets.only(top: 15),
-                              child: _scrollable(),
+                          Positioned(
+                            child: Visibility(
+                              visible: deleting,
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: 100,
+                                      height: 100,
+                                      child: LoadingIndicator(
+                                        indicatorType: Indicator.ballBeat,
+                                      ),
+                                    ),
+                                    const Text('Eliminando'),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
                         ],
                       ),
-                    ),
-                    Positioned(
-                      child: Visibility(
-                        visible: deleting,
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                width: 100,
-                                height: 100,
-                                child: LoadingIndicator(
-                                  indicatorType: Indicator.ballBeat,
-                                ),
-                              ),
-                              const Text('Eliminando'),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
               ),
             )),
       ),
@@ -333,32 +343,42 @@ class _ProjectPageState extends State<ProjectPage> {
               ],
             ),
             actions: [
-              isUpdating
-                  ? LoadingIndicatorsC.ballRotateChaseSmall
-                  : InkWell(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child: Text('Cancelar'),
-                    ),
-              !isUpdating
-                  ? InkWell(
-                      onTap: () async {
-                        FocusScope.of(context).unfocus();
-                        project = await apiProject.modifyProject(
-                            projectId: '${project?.id}', title: _editTitle);
-                        SnackBarC.showSnackbar(
-                            message: 'Modificado con exito.', context: context);
-                        Navigator.pop(context);
-                        Navigator.popAndPushNamed(context, 'home',
-                            arguments: project);
-                      },
-                      child: Text(
-                        'Modificar',
-                        style: TextStyle(color: Palettes.lightBlue),
-                      ),
-                    )
-                  : Container(),
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: const Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Text('Cancelar'),
+                ),
+              ),
+              InkWell(
+                onTap: () async {
+                  if (_editTitle.trim() != '') {
+                    setState(() {
+                      isUpdating = true;
+                    });
+                    Navigator.pop(context);
+                    FocusScope.of(context).unfocus();
+                    project = await apiProject.modifyProject(
+                        projectId: '${project?.id}', title: _editTitle);
+                    SnackBarC.showSnackbar(
+                        message: 'Modificado con exito.', context: context);
+                    Navigator.popAndPushNamed(context, 'home',
+                        arguments: project);
+                  } else {
+                    SnackBarC.showSnackbar(
+                        message: 'Campo sin completar.', context: context);
+                  }
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Text(
+                    'Modificar',
+                    style: TextStyle(color: Palettes.lightBlue),
+                  ),
+                ),
+              )
             ],
           ),
         );

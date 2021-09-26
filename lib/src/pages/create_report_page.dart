@@ -8,19 +8,20 @@ import 'package:image_picker/image_picker.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:location/location.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:photo_view/photo_view.dart';
 import 'package:unicons/unicons.dart';
 import 'package:urbansensor/src/models/project.dart';
+import 'package:urbansensor/src/pages/video_viewer.dart';
 import 'package:urbansensor/src/services/api_project.dart';
 import 'package:urbansensor/src/services/api_report.dart';
 import 'package:urbansensor/src/streams/project_stream.dart';
-import 'package:urbansensor/src/pages/video_viewer.dart';
 import 'package:urbansensor/src/utils/format_date.dart';
 import 'package:urbansensor/src/utils/theme.dart';
 import 'package:urbansensor/src/widgets/file_type.dart';
 import 'package:urbansensor/src/widgets/navigators/back_app_bar.dart';
 import 'package:urbansensor/src/widgets/snack_bar_c.dart';
 import 'package:video_player/video_player.dart';
+
+import 'image_viewer.dart';
 
 class CreateReportPage extends StatefulWidget {
   const CreateReportPage({
@@ -225,19 +226,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
             showGeneralDialog(
                 context: context,
                 pageBuilder: (context, animation, secondaryAnimation) {
-                  return Scaffold(
-                    backgroundColor: Colors.transparent,
-                    body: GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: PhotoView(
-                        minScale: PhotoViewComputedScale.contained,
-                        maxScale: PhotoViewComputedScale.contained * 10,
-                        imageProvider: FileImage(_image!),
-                      ),
-                    ),
-                  );
+                  return ImageViewer(image: _image!);
                 });
           },
           child: Image.file(

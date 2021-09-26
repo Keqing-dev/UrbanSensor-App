@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:unicons/unicons.dart';
 import 'package:urbansensor/src/models/report.dart';
+import 'package:urbansensor/src/pages/image_viewer.dart';
 import 'package:urbansensor/src/pages/video_viewer.dart';
 import 'package:urbansensor/src/utils/format_date.dart';
 import 'package:urbansensor/src/utils/general_util.dart';
@@ -106,7 +107,9 @@ class ReportPreview extends StatelessWidget {
                                               file: File('null'),
                                               url: reportSelected?.file,
                                             )
-                                          : _imageViewer(context),
+                                          : ImageViewer(
+                                              url: reportSelected?.file,
+                                            ),
                                 );
                               },
                             ),
@@ -159,39 +162,6 @@ class ReportPreview extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _imageViewer(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child: GestureDetector(
-          onTap: () {
-            Navigator.of(context).pop();
-          },
-          child: Center(
-            child: InteractiveViewer(
-              alignPanAxis: true,
-              constrained: false,
-              minScale: 1,
-              maxScale: 5.0,
-              boundaryMargin: EdgeInsets.symmetric(
-                  vertical: MediaQuery.of(context).size.height / 2),
-              child: GestureDetector(
-                onTap: () {
-                  print('jeje');
-                },
-                child: CachedNetworkImage(
-                  imageUrl: '${reportSelected?.file}',
-                  height: 300,
-                  alignment: Alignment.center,
-                ),
-              ),
-            ),
           ),
         ),
       ),
