@@ -9,6 +9,7 @@ import 'package:unicons/unicons.dart';
 import 'package:urbansensor/src/models/report.dart';
 import 'package:urbansensor/src/services/api_report.dart';
 import 'package:urbansensor/src/utils/format_date.dart';
+import 'package:urbansensor/src/utils/general_util.dart';
 import 'package:urbansensor/src/utils/palettes.dart';
 import 'package:urbansensor/src/utils/shadow.dart';
 
@@ -26,6 +27,7 @@ class _ReportCardState extends State<ReportCard> {
   bool deleting = false;
   final ReceivePort _port = ReceivePort();
   int progress = 0;
+  SlidableController slidableController = SlidableController();
 
   @override
   void initState() {
@@ -56,8 +58,11 @@ class _ReportCardState extends State<ReportCard> {
 
   @override
   Widget build(BuildContext context) {
+    bool isVideo = GeneralUtil.isVideoFormat('${widget.report?.file}');
+
     return Slidable(
       actionPane: const SlidableScrollActionPane(),
+      controller: slidableController,
       // Specify a key if the Slidable is dismissible.
       key: const ValueKey(0),
       actions: [
@@ -99,15 +104,33 @@ class _ReportCardState extends State<ReportCard> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            '${widget.report?.categories}',
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style:
-                                Theme.of(context).textTheme.subtitle2!.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                      color: Palettes.gray2,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  '${widget.report?.categories}',
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .subtitle2!
+                                      .copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: Palettes.gray2,
+                                      ),
+                                ),
+                              ),
+                              isVideo
+                                  ? Icon(
+                                      UniconsLine.video,
+                                      color: Palettes.green2,
+                                    )
+                                  : Icon(
+                                      UniconsLine.image,
+                                      color: Palettes.green2,
                                     ),
+                            ],
                           ),
                           Text(
                             '${widget.report?.address}',

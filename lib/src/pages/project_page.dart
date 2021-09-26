@@ -93,7 +93,12 @@ class _ProjectPageState extends State<ProjectPage> {
     return WillPopScope(
       onWillPop: () async => !deleting,
       child: RefreshIndicator(
-        onRefresh: () => apiReport.refreshAllReports('${project.id}'),
+        onRefresh: () async {
+          setState(() {
+            apiSuccess = true;
+          });
+          apiReport.refreshAllReports('${project.id}');
+        },
         color: Colors.white,
         backgroundColor: Palettes.lightBlue,
         child: Scaffold(
@@ -305,10 +310,10 @@ class _ProjectPageState extends State<ProjectPage> {
         showDialog(
           context: context,
           builder: (_) => AlertDialog(
-            backgroundColor: Color.fromRGBO(250, 250, 250, 1),
+            backgroundColor: const Color.fromRGBO(250, 250, 250, 1),
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+              children: const [
                 Text('Editar'),
                 Icon(UniconsLine.edit),
               ],
@@ -339,12 +344,13 @@ class _ProjectPageState extends State<ProjectPage> {
               !isUpdating
                   ? InkWell(
                       onTap: () async {
+                        FocusScope.of(context).unfocus();
                         project = await apiProject.modifyProject(
                             projectId: '${project?.id}', title: _editTitle);
                         SnackBarC.showSnackbar(
                             message: 'Modificado con exito.', context: context);
                         Navigator.pop(context);
-                        Navigator.popAndPushNamed(context, 'project',
+                        Navigator.popAndPushNamed(context, 'home',
                             arguments: project);
                       },
                       child: Text(

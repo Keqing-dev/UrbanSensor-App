@@ -22,6 +22,7 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   ApiProject apiProject = ApiProject();
   ApiReport apiReport = ApiReport();
+  ReportStream reportStream = ReportStream();
 
   @override
   void initState() {
@@ -73,7 +74,6 @@ class _DashboardState extends State<Dashboard> {
             builder: (BuildContext context, AsyncSnapshot snapshot) {
               if (snapshot.hasData) {
                 List<Project>? projects = snapshot.data;
-
                 return _projectList(projects);
               } else if (snapshot.hasError) {
                 return Expanded(
