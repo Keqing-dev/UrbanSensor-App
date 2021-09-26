@@ -17,6 +17,8 @@ class BottomNavigationBarC extends StatelessWidget {
         shape: const CircularNotchedRectangle(),
         clipBehavior: Clip.antiAlias,
         child: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          selectedFontSize: 12.0,
           showUnselectedLabels: true,
           selectedItemColor: theme.colorScheme.secondary,
           unselectedItemColor: const Color.fromRGBO(107, 107, 107, 1),

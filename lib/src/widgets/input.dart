@@ -14,6 +14,12 @@ class Input extends StatefulWidget {
     this.feedback,
     this.validator,
     this.func,
+    this.enabled = true,
+    this.onTap,
+    this.readOnly = false,
+    this.minLines,
+    this.maxLines = 1,
+    this.height = 48,
   }) : super(key: key);
 
   final String label;
@@ -24,6 +30,12 @@ class Input extends StatefulWidget {
   final Widget? feedback;
   final FormFieldValidator<String>? validator;
   final Function? func;
+  final bool enabled;
+  final bool readOnly;
+  final void Function()? onTap;
+  final int? minLines;
+  final int? maxLines;
+  final double height;
 
   @override
   _InputState createState() => _InputState();
@@ -50,7 +62,8 @@ class _InputState extends State<Input> {
         Stack(
           children: [
             Container(
-              height: widget.feedback != null ? 77 : 48,
+              height:
+                  widget.feedback != null ? widget.height + 29 : widget.height,
               decoration: BoxDecoration(
                 boxShadow: shadow(),
               ),
@@ -60,6 +73,11 @@ class _InputState extends State<Input> {
                     widget.func!(value);
                   }
                 },
+                minLines: widget.minLines,
+                maxLines: widget.maxLines,
+                enabled: widget.enabled,
+                readOnly: widget.readOnly,
+                onTap: widget.onTap,
                 validator: widget.validator,
                 controller: widget.controller,
                 keyboardType: widget.keyboardType,
@@ -71,8 +89,8 @@ class _InputState extends State<Input> {
                   errorStyle: null,
                   hintStyle: Theme.of(context).textTheme.bodyText2!.copyWith(
                       fontWeight: FontWeight.w500, color: CustomTheme.gray3),
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                  contentPadding: const EdgeInsets.only(
+                      left: 12, right: 12, top: 16, bottom: 15),
                   fillColor: Colors.white,
                   filled: true,
                   border: OutlineInputBorder(
@@ -117,7 +135,7 @@ class InputFeedback extends StatelessWidget {
   const InputFeedback({
     Key? key,
     this.iconSize = 16,
-    this.icon,
+    this.icon = UniconsLine.exclamation_triangle,
     required this.label,
     this.color,
   }) : super(key: key);

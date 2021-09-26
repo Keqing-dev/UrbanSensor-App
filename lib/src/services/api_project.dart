@@ -54,6 +54,7 @@ class ApiProject {
         headers: _headersTk);
 
     print('getAllMyProjects() STATUS CODE: ${res.statusCode}');
+    print('getAllMyProjects() PAGE ${_page}');
 
     if (res.statusCode != 200) {
       if (_page == 1) {

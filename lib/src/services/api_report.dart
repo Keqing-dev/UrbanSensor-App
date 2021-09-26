@@ -182,4 +182,35 @@ class ApiReport {
   }
 
   List<Report>? get latestReports => _latestReports;
+
+  Future createReport(String path, String latitude, String longitude,
+      String address, String categories, String projectId) async {
+    final headersTk = await Api().getHeadersTkMultiPart();
+
+    var request = http.MultipartRequest('post', Uri.https(_domain, "/report"));
+
+    request.fields.addAll({
+      'latitude': latitude,
+      'longitude': longitude,
+      'address': address,
+      'categories': categories,
+      'projectId': projectId
+    });
+
+    request.files.add(await http.MultipartFile.fromPath('file', path));
+
+    request.headers.addAll(headersTk);
+
+    final responseStream = await request.send();
+
+    print('createReport() STATUS CODE: ${responseStream.statusCode}');
+
+    final res = await http.Response.fromStream(responseStream);
+
+    if (res.statusCode != 200) {
+      return false;
+    }
+
+    return true;
+  }
 }
