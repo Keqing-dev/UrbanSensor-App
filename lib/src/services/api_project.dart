@@ -34,6 +34,7 @@ class ApiProject {
     print('getLatestProject() STATUS CODE: ${res.statusCode}');
 
     if (res.statusCode != 200) {
+      print('jeje');
       return Future.error('Sin proyectos');
     }
 

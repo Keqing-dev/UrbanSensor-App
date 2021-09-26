@@ -125,7 +125,7 @@ class Report {
               '${reports[i].longitude}',
             )),
         categories: '${reports[i].categories}',
-        observations: '${reports[i].observations}',
+        observations: reports[i].observations,
         file: '${reports[i].file}',
         timestamp: '${reports[i].timestamp}',
         address: '${reports[i].address}',

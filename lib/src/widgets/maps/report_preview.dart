@@ -203,9 +203,9 @@ class ReportPreview extends StatelessWidget {
       title: Text(
         'Información',
         style: Theme.of(context).textTheme.subtitle1!.copyWith(
-          fontWeight: FontWeight.w600,
-          color: Palettes.gray2,
-        ),
+              fontWeight: FontWeight.w600,
+              color: Palettes.gray2,
+            ),
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -255,9 +255,10 @@ class ReportPreview extends StatelessWidget {
     );
   }
 
-  Widget _label({required IconData iconData,
-    required String label,
-    required BuildContext context}) {
+  Widget _label(
+      {required IconData iconData,
+      required String label,
+      required BuildContext context}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -273,8 +274,8 @@ class ReportPreview extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               maxLines: 3,
               style: Theme.of(context).textTheme.subtitle2!.copyWith(
-                color: Palettes.gray2,
-              ),
+                    color: Palettes.gray2,
+                  ),
             ),
           ),
         ),

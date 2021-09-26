@@ -7,7 +7,7 @@ class Place with ClusterItem {
   final String categories;
   final String address;
   final String timestamp;
-  final String observations;
+  final String? observations;
   final String file;
 
   Place({

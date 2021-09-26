@@ -40,7 +40,7 @@ class ApiReport {
     print('getLatestReport() STATUS CODE: ${res.statusCode}');
 
     if (res.statusCode != 200) {
-      _stream.reportsSink([]);
+      _stream.reportsLatestSink([]);
       return false;
     }
 
@@ -99,8 +99,10 @@ class ApiReport {
 
     _allReports?.removeWhere((element) => element.id == reportId);
     _stream.reportsSink(_allReports);
-
     _stream.reportLoadedSink(true);
+
+    _latestReports?.removeWhere((element) => element.id == reportId);
+    _stream.reportsLatestSink(_latestReports);
     return true;
   }
 
