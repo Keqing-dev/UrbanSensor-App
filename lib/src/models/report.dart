@@ -50,7 +50,8 @@ class Report {
 
   String? get id => _id;
 
-  String? get address => utf8.decode(_address!.runes.toList());
+  String? get address =>
+      _address == null ? null : utf8.decode(_address!.runes.toList());
 
   String? get file => _file;
 
@@ -64,7 +65,8 @@ class Report {
 
   String? get timestamp => _timestamp;
 
-  String? get observations => utf8.decode(_observations!.runes.toList());
+  String? get observations =>
+      _observations == null ? null : utf8.decode(_observations!.runes.toList());
 
   Report({
     String? id,
