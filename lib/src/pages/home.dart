@@ -34,27 +34,27 @@ class Home extends StatelessWidget {
         ),
         ActionButton(
           onPressed: () {
-            // captureImage(context);
-            // Navigator.pushNamed(context, "createReport");
-
             Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const CreateReportPage(
-                          fileType: FileType.photo,
-                        )));
+              context,
+              MaterialPageRoute(
+                builder: (context) => const CreateReportPage(
+                  fileType: FileType.photo,
+                ),
+              ),
+            );
           },
           icon: const Icon(UniconsLine.image),
         ),
         ActionButton(
           onPressed: () {
-            // Navigator.pushNamed(context, "test", arguments: FileType.video);
             Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const CreateReportPage(
-                          fileType: FileType.video,
-                        )));
+              context,
+              MaterialPageRoute(
+                builder: (context) => const CreateReportPage(
+                  fileType: FileType.video,
+                ),
+              ),
+            );
           },
           icon: const Icon(UniconsLine.video),
         ),

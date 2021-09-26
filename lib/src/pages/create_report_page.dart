@@ -44,7 +44,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
   Set<Marker> _markers = {};
   BitmapDescriptor? mapMarker;
   final Completer<GoogleMapController> _controller = Completer();
-  final Completer<GoogleMapController> _dialogController = Completer();
+  final Completer<GoogleMapController> _fullMapController = Completer();
   final _transformationController = TransformationController();
   late TapDownDetails _doubleTapDetails;
   final ApiProject _apiProject = ApiProject();
@@ -79,7 +79,6 @@ class _CreateReportPageState extends State<CreateReportPage> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _image?.delete();
     _video?.delete();
     _video = null;
@@ -150,19 +149,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
                         content: _address!,
                       ),
                       const SizedBox(height: 16.0),
-                      _video != null
-                          ? _videoPreview()
-                          : SizedBox(
-                              width: double.infinity,
-                              height: 164,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8.0),
-                                child: Image.file(
-                                  _image!,
-                                  fit: BoxFit.fitWidth,
-                                ),
-                              ),
-                            ),
+                      _video != null ? _videoPreview() : _imagePreview(),
                       const SizedBox(height: 16.0),
                       Container(
                         width: double.infinity,
@@ -171,26 +158,32 @@ class _CreateReportPageState extends State<CreateReportPage> {
                           borderRadius: BorderRadius.circular(8.0),
                           border: Border.all(color: CustomTheme.gray3),
                         ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8.0),
-                          child: GoogleMap(
-                            mapType: MapType.normal,
-                            initialCameraPosition: _kGooglePlex,
-                            markers: _markers,
-                            zoomControlsEnabled: false,
-                            zoomGesturesEnabled: false,
-                            tiltGesturesEnabled: false,
-                            scrollGesturesEnabled: false,
-                            rotateGesturesEnabled: false,
-                            mapToolbarEnabled: false,
-                            onCameraMove: null,
-                            onMapCreated: _onMapCreated,
-                            myLocationEnabled: false,
-                            myLocationButtonEnabled: false,
-                            onTap: (_) {
-                              _showGeneralDialog();
-                            },
-                          ),
+                        child: Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8.0),
+                              child: GoogleMap(
+                                mapType: MapType.normal,
+                                initialCameraPosition: _kGooglePlex,
+                                markers: _markers,
+                                zoomControlsEnabled: false,
+                                zoomGesturesEnabled: false,
+                                tiltGesturesEnabled: false,
+                                scrollGesturesEnabled: false,
+                                rotateGesturesEnabled: false,
+                                mapToolbarEnabled: false,
+                                onCameraMove: null,
+                                onMapCreated: _onMapCreated,
+                                myLocationEnabled: false,
+                                myLocationButtonEnabled: false,
+                              ),
+                            ),
+                            SizedBox.expand(
+                              child: GestureDetector(
+                                onTap: _showMap,
+                              ),
+                            )
+                          ],
                         ),
                       ),
                     ],
@@ -221,27 +214,99 @@ class _CreateReportPageState extends State<CreateReportPage> {
         const ImageConfiguration(), 'assets/img/location_marker.png');
   }
 
-  void _showImageDialog() {
-    showGeneralDialog(
-        context: context,
-        pageBuilder: (context, animation, secondaryAnimation) {
-          return Scaffold(
-            backgroundColor: Colors.transparent,
-            body: GestureDetector(
-              onTap: () {
-                Navigator.of(context).pop();
-              },
-              child: PhotoView(
-                minScale: PhotoViewComputedScale.contained,
-                maxScale: PhotoViewComputedScale.contained * 10,
-                imageProvider: FileImage(_image!),
-              ),
-            ),
-          );
-        });
+  Widget _imagePreview() {
+    return SizedBox(
+      width: double.infinity,
+      height: 164,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8.0),
+        child: GestureDetector(
+          onTap: () {
+            showGeneralDialog(
+                context: context,
+                pageBuilder: (context, animation, secondaryAnimation) {
+                  return Scaffold(
+                    backgroundColor: Colors.transparent,
+                    body: GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: PhotoView(
+                        minScale: PhotoViewComputedScale.contained,
+                        maxScale: PhotoViewComputedScale.contained * 10,
+                        imageProvider: FileImage(_image!),
+                      ),
+                    ),
+                  );
+                });
+          },
+          child: Image.file(
+            _image!,
+            fit: BoxFit.fitWidth,
+          ),
+        ),
+      ),
+    );
   }
 
-  void _showMapDialog() {
+  Widget _videoPreview() {
+    return Stack(
+      children: [
+        SizedBox(
+          height: 164,
+          width: double.infinity,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8.0),
+            child: GestureDetector(
+              onTap: () {
+                showGeneralDialog(
+                    context: context,
+                    pageBuilder: (_, __, ___) => VideoViewer(file: _video!));
+              },
+              child: FittedBox(
+                fit: BoxFit.cover,
+                clipBehavior: Clip.hardEdge,
+                alignment: Alignment.centerLeft,
+                child: SizedBox(
+                  height: 300,
+                  width: 300,
+                  child: VideoPlayer(_videoController),
+                ),
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: 0,
+          top: 0,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: Container(
+              width: 40,
+              height: 40,
+              // padding: const EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                // color: Colors.redAccent,
+                borderRadius: BorderRadius.circular(100),
+              ),
+              child: FloatingActionButton(
+                backgroundColor: Color.fromRGBO(0, 0, 0, 0.75),
+                onPressed: () {
+                  showGeneralDialog(
+                      context: context,
+                      pageBuilder: (_, __, ___) => VideoViewer(file: _video!));
+                },
+                child: const Icon(UniconsLine.play),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showMap() {
     showGeneralDialog(
         context: context,
         pageBuilder: (context, animation, secondaryAnimation) {
@@ -252,8 +317,10 @@ class _CreateReportPageState extends State<CreateReportPage> {
                 initialCameraPosition: _kGooglePlex,
                 markers: _markers,
                 mapToolbarEnabled: false,
-                myLocationEnabled: false,
-                myLocationButtonEnabled: true,
+                zoomControlsEnabled: false,
+                myLocationEnabled: true,
+                myLocationButtonEnabled: false,
+                onMapCreated: _onFullMapCreated,
                 onTap: (latLng) {
                   setStateSecondary(() {
                     setState(() {
@@ -262,18 +329,56 @@ class _CreateReportPageState extends State<CreateReportPage> {
                   });
                 },
               ),
+              floatingActionButton: FloatingActionButton(
+                child: const Icon(UniconsLine.crosshairs),
+                onPressed: () {
+                  _setCurrentPosition(setStateSecondary);
+                },
+              ),
             );
           });
         });
   }
 
+  void _setCurrentPosition(
+      void Function(void Function()) setStateSecondary) async {
+    Location location = Location();
+
+    bool _serviceEnabled;
+    LocationData _locationData;
+
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+
+    if (await Permission.location.request().isGranted) {
+      _locationData = await location.getLocation();
+      print(_locationData);
+      setStateSecondary(() {
+        setState(() {
+          LatLng latLng =
+              LatLng(_locationData.latitude!, _locationData.longitude!);
+          _updatePosition(latLng);
+        });
+      });
+    } else {
+      Navigator.of(context).pop();
+    }
+  }
+
   void _updatePosition(LatLng latLng) async {
+    print(latLng);
     geo.Placemark placemark = (await geo.placemarkFromCoordinates(
       latLng.latitude,
       latLng.longitude,
       localeIdentifier: "es_CL",
     ))
         .first;
+
     _latLng = latLng;
     _address =
         "${placemark.street}, ${placemark.locality}, ${placemark.administrativeArea}";
@@ -289,14 +394,11 @@ class _CreateReportPageState extends State<CreateReportPage> {
       position: latLng,
     ));
     _moveCamera(latLng);
+    _animateCamera(latLng);
   }
 
   void _onMapCreated(GoogleMapController controller) {
     _controller.complete(controller);
-  }
-
-  void _onDialogMapCreated(GoogleMapController controller) {
-    _dialogController.complete(controller);
   }
 
   void _moveCamera(LatLng latLng) async {
@@ -305,9 +407,13 @@ class _CreateReportPageState extends State<CreateReportPage> {
         CameraPosition(target: latLng, zoom: 15.8)));
   }
 
-  void _moveDialogCamera(LatLng latLng) async {
-    final GoogleMapController dialogController = await _dialogController.future;
-    dialogController.moveCamera(CameraUpdate.newCameraPosition(
+  void _onFullMapCreated(GoogleMapController controller) {
+    _fullMapController.complete(controller);
+  }
+
+  void _animateCamera(LatLng latLng) async {
+    final GoogleMapController controller = await _fullMapController.future;
+    controller.animateCamera(CameraUpdate.newCameraPosition(
         CameraPosition(target: latLng, zoom: 15.8)));
   }
 
@@ -353,7 +459,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
           );
           _markers.add(Marker(
             icon: mapMarker!,
-            markerId: MarkerId('Yoshida'),
+            markerId: MarkerId(_location.toString()),
             position: LatLng(_location.latitude!, _location.longitude!),
           ));
         });
@@ -420,53 +526,5 @@ class _CreateReportPageState extends State<CreateReportPage> {
       SnackBarC.showSnackbar(
           message: 'Debes aceptar los permisos', context: context);
     }
-  }
-
-  Widget _videoPreview() {
-    return Stack(
-      children: [
-        SizedBox(
-          height: 164,
-          width: double.infinity,
-          child: InkWell(
-            onTap: () {
-              showGeneralDialog(
-                  context: context,
-                  pageBuilder: (_, _1, _2) => VideoViewer(file: _video!));
-            },
-            child: FittedBox(
-              fit: BoxFit.cover,
-              clipBehavior: Clip.hardEdge,
-              alignment: Alignment.centerLeft,
-              child: SizedBox(
-                height: 300,
-                width: 300,
-                child: VideoPlayer(_videoController),
-              ),
-            ),
-          ),
-        ),
-        Positioned(
-          bottom: 0,
-          top: 0,
-          left: 0,
-          right: 0,
-          child: Center(
-            child: Container(
-                width: 40,
-                height: 40,
-                padding: const EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                  color: Colors.redAccent,
-                  borderRadius: BorderRadius.circular(100),
-                ),
-                child: const Icon(
-                  UniconsLine.play,
-                  color: Colors.white,
-                )),
-          ),
-        ),
-      ],
-    );
   }
 }

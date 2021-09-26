@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:urbansensor/src/utils/loading_indicators_c.dart';
 import 'package:urbansensor/src/utils/palettes.dart';
 import 'package:video_player/video_player.dart';
@@ -64,6 +65,8 @@ class _VideoViewerState extends State<VideoViewer> {
         color: Colors.transparent,
       ),
       autoInitialize: true,
+      deviceOrientationsOnEnterFullScreen: [DeviceOrientation.landscapeLeft],
+      deviceOrientationsAfterFullScreen: [DeviceOrientation.portraitUp],
     );
   }
 

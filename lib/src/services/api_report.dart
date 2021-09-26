@@ -40,7 +40,7 @@ class ApiReport {
     print('getLatestReport() STATUS CODE: ${res.statusCode}');
 
     if (res.statusCode != 200) {
-      _stream.reportsSink([]);
+      _stream.reportsLatestSink([]);
       return false;
     }
 
