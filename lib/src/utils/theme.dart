@@ -37,7 +37,7 @@ class CustomTheme {
     bodyText2: TextStyle(
         fontWeight: FontWeight.w400, fontSize: 14.0, letterSpacing: 0.25),
     button: TextStyle(
-        fontWeight: FontWeight.w500, fontSize: 14.0, letterSpacing: 1.25),
+        fontWeight: FontWeight.w500, fontSize: 16.0, letterSpacing: 1.25),
     caption: TextStyle(
         fontWeight: FontWeight.w400, fontSize: 12.0, letterSpacing: 0.4),
     overline: TextStyle(
