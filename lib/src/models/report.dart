@@ -1,3 +1,5 @@
+import 'dart:convert' show utf8;
+
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:urbansensor/src/models/place.dart';
 import 'package:urbansensor/src/models/user.dart';
@@ -48,7 +50,7 @@ class Report {
 
   String? get id => _id;
 
-  String? get address => _address;
+  String? get address => utf8.decode(_address!.runes.toList());
 
   String? get file => _file;
 
@@ -62,7 +64,7 @@ class Report {
 
   String? get timestamp => _timestamp;
 
-  String? get observations => _observations;
+  String? get observations => utf8.decode(_observations!.runes.toList());
 
   Report({
     String? id,
