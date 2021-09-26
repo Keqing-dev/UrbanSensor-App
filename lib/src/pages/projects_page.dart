@@ -92,7 +92,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
           ),
           Expanded(
             child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
+              // padding: const EdgeInsets.symmetric(horizontal: 16),
               child: StreamBuilder(
                   stream: stream.projectsStream,
                   builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -102,7 +102,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                           Positioned.fill(child: _scrollView(snapshot.data)),
                           Positioned(
                             bottom: 0,
-                            left: (MediaQuery.of(context).size.width / 2) - 50,
+                            left: (MediaQuery.of(context).size.width / 2) - 30,
                             child: _loading(),
                           ),
                         ],
@@ -128,7 +128,8 @@ class _ProjectsPageState extends State<ProjectsPage> {
               SliverList(
                 delegate: SliverChildBuilderDelegate((context, index) {
                   return Container(
-                      margin: const EdgeInsets.only(bottom: 16.0),
+                      margin: const EdgeInsets.only(
+                          bottom: 16.0, left: 16, right: 16),
                       child: ProjectCard(project: projects[index]));
                 }, childCount: projects.length),
               ),

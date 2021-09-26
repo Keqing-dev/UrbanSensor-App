@@ -19,7 +19,7 @@ class Home extends StatelessWidget {
       extendBodyBehindAppBar: true,
       extendBody: true,
       body: SafeArea(
-        bottom: false,
+        // bottom: false,
         child: _contentPageSelected(context),
       ),
       // floatingActionButton: FloatingActionButton(

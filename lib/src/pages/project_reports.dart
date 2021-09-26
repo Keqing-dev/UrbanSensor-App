@@ -26,7 +26,7 @@ class ProjectReports extends StatefulWidget {
 
 class _ProjectReportsState extends State<ProjectReports> {
   final Completer<GoogleMapController> _controller = Completer();
-  Set<Marker> markers = Set();
+  Set<Marker> markers = {};
   BitmapDescriptor? mapMarker;
   Report? _reportSelected;
   List<Report>? _listReportSelected;
@@ -272,10 +272,10 @@ class _ProjectReportsState extends State<ProjectReports> {
     }
     final PictureRecorder pictureRecorder = PictureRecorder();
     final Canvas canvas = Canvas(pictureRecorder);
-    final Paint paint1 = Paint()..color = Color.fromRGBO(88, 217, 156, 1);
-    final Paint paint2 = Paint()..color = Color.fromRGBO(88, 217, 156, 1);
-    final Paint paint3 = Paint()..color = Color.fromRGBO(88, 217, 156, 1);
-    final Paint paint4 = Paint()..color = Colors.white;
+    final Paint paint1 = Paint()..color = const Color.fromRGBO(88, 217, 156, 1);
+    final Paint paint2 = Paint()..color = const Color.fromRGBO(88, 217, 156, 1);
+    final Paint paint3 = Paint()..color = const Color.fromRGBO(88, 217, 156, 1);
+    final Paint paint4 = Paint()..color = const Color.fromRGBO(88, 217, 156, 1);
 
     canvas.drawCircle(Offset(size / 2, size / 2), size / 2.0, paint1);
     canvas.drawCircle(Offset(size / 2, size / 2), size / 2.2, paint2);
@@ -289,8 +289,8 @@ class _ProjectReportsState extends State<ProjectReports> {
         text: text,
         style: TextStyle(
             fontSize: size / 3,
-            color: Colors.black,
-            fontWeight: FontWeight.normal),
+            color: Colors.white,
+            fontWeight: FontWeight.w500),
       );
       painter.layout();
       painter.paint(
