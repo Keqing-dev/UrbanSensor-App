@@ -184,8 +184,15 @@ class ApiReport {
 
   List<Report>? get latestReports => _latestReports;
 
-  Future createReport(String path, String latitude, String longitude,
-      String address, String categories, String projectId) async {
+  Future createReport(
+    String path,
+    String latitude,
+    String longitude,
+    String address,
+    String observations,
+    String categories,
+    String projectId,
+  ) async {
     final headersTk = await Api().getHeadersTkMultiPart();
 
     var request = http.MultipartRequest('post', Uri.https(_domain, "/report"));
@@ -194,6 +201,7 @@ class ApiReport {
       'latitude': latitude,
       'longitude': longitude,
       'address': address,
+      'observations': observations,
       'categories': categories,
       'projectId': projectId
     });

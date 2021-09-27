@@ -328,6 +328,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
         _latLng!.latitude.toString(),
         _latLng!.longitude.toString(),
         _address!,
+        _observationsController.text,
         _labelsController.text.toString(),
         _projectId!,
       );
