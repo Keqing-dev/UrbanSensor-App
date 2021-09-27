@@ -20,7 +20,6 @@ class ReportPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool isVideo = GeneralUtil.isVideoFormat('${reportSelected?.file}');
-
     return Container(
       decoration: const BoxDecoration(
         boxShadow: [

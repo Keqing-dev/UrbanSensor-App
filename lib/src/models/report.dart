@@ -1,3 +1,4 @@
+
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:urbansensor/src/models/place.dart';
 import 'package:urbansensor/src/models/user.dart';
@@ -62,7 +63,10 @@ class Report {
 
   String? get timestamp => _timestamp;
 
-  String? get observations => _observations;
+  String? get observations =>
+      _observations == null ? null : /*utf8.decode(*/ _observations;
+
+  /*!.runes.toList());*/
 
   Report({
     String? id,
@@ -142,7 +146,7 @@ class Report {
     _longitude = '${place.latLng.longitude}';
     _categories = place.categories;
     _timestamp = place.timestamp;
-    _observations = place.observations;
+    _observations = '${place.observations}';
   }
 
   static List<Report>? fromPlaceList(List<Place> places) {
