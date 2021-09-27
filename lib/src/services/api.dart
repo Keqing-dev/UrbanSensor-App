@@ -20,6 +20,7 @@ class Api {
 
   final Map<String, String> headers = {
     'Content-Type': 'application/json; charset=UTF-8',
+    'Accept': 'application/json; charset=UTF-8',
   };
 
   set token(String value) {
@@ -32,6 +33,7 @@ class Api {
 
     return {
       'Content-Type': 'application/json; charset=UTF-8',
+      'Accept': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     };
   }
@@ -42,6 +44,7 @@ class Api {
 
     return {
       'Content-Type': 'multipart/form-data;',
+      'Accept': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     };
   }
