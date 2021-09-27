@@ -45,8 +45,7 @@ class ApiReport {
     }
 
     // ReportRes reportRes = ReportRes.fromJson(json.decode(res.body));
-    ReportRes reportRes =
-        ReportRes.fromJson(json.decode(Utf8Decoder().convert(res.bodyBytes)));
+    ReportRes reportRes = ReportRes.fromJson(json.decode(res.body));
 
     List<Report>? reports = reportRes.content;
 
@@ -168,8 +167,7 @@ class ApiReport {
       return [];
     }
 
-    ReportRes reportRes =
-        ReportRes.fromJson(json.decode(Utf8Decoder().convert(res.bodyBytes)));
+    ReportRes reportRes = ReportRes.fromJson(json.decode(res.body));
 
     List<Report>? reports = reportRes.content;
     _stream.reportsProjectMapSink(reports);
