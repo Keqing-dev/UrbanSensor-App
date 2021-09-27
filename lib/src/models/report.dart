@@ -63,8 +63,7 @@ class Report {
 
   String? get timestamp => _timestamp;
 
-  String? get observations =>
-      _observations == null ? null : /*utf8.decode(*/ _observations;
+  String? get observations => _observations;
 
   /*!.runes.toList());*/
 
@@ -146,7 +145,7 @@ class Report {
     _longitude = '${place.latLng.longitude}';
     _categories = place.categories;
     _timestamp = place.timestamp;
-    _observations = '${place.observations}';
+    _observations = place.observations;
   }
 
   static List<Report>? fromPlaceList(List<Place> places) {
