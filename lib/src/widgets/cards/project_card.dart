@@ -5,8 +5,10 @@ import 'package:urbansensor/src/utils/palettes.dart';
 import 'package:urbansensor/src/utils/shadow.dart';
 
 class ProjectCard extends StatelessWidget {
-  const ProjectCard({Key? key, required this.project}) : super(key: key);
+  const ProjectCard({Key? key, required this.project, this.onTap})
+      : super(key: key);
   final Project? project;
+  final Function? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +23,11 @@ class ProjectCard extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(8),
           onTap: () {
-            Navigator.pushNamed(context, 'project', arguments: project);
+            if (onTap != null) {
+              onTap!();
+            } else {
+              Navigator.pushNamed(context, 'project', arguments: project);
+            }
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),

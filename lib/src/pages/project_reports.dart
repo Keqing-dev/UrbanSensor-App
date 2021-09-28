@@ -25,6 +25,7 @@ class ProjectReports extends StatefulWidget {
 }
 
 class _ProjectReportsState extends State<ProjectReports> {
+  int? reportsCount;
   final Completer<GoogleMapController> _controller = Completer();
   Set<Marker> markers = {};
   BitmapDescriptor? mapMarker;
@@ -90,7 +91,7 @@ class _ProjectReportsState extends State<ProjectReports> {
                   fontWeight: FontWeight.w600),
             ),
             subtitle: Text(
-              '${project.reportsCount} Reportes',
+              reportsCount == null ? '' : 'Últimos $reportsCount Reportes',
               style: Theme.of(context).textTheme.subtitle2!.copyWith(
                   color: Colors.white,
                   fontSize: 14,
@@ -111,6 +112,7 @@ class _ProjectReportsState extends State<ProjectReports> {
               builder: (BuildContext context, AsyncSnapshot snapshot) {
                 if (snapshot.hasData) {
                   List<Report>? reports = snapshot.data;
+
                   return GoogleMap(
                       onTap: (_) {
                         setState(() {
@@ -126,6 +128,7 @@ class _ProjectReportsState extends State<ProjectReports> {
                       compassEnabled: true,
                       onMapCreated: (GoogleMapController controller) {
                         setState(() {
+                          reportsCount = reports?.length;
                           _manager = _apiClusterManager(reports);
                         });
                         _controller.complete(controller);
@@ -152,8 +155,8 @@ class _ProjectReportsState extends State<ProjectReports> {
                               Colors.lightBlue,
                             ],
                           ),
-                          Text(
-                            'Cargando ${project.reportsCount} reportes',
+                          const Text(
+                            'Cargando...',
                             textAlign: TextAlign.center,
                           )
                         ],
@@ -194,7 +197,7 @@ class _ProjectReportsState extends State<ProjectReports> {
                 },
                 child: Visibility(
                   visible:
-                      _reportSelected == null && _listReportSelected != null,
+                  _reportSelected == null && _listReportSelected != null,
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 0, sigmaY: 0),
                     child: Material(
@@ -217,7 +220,7 @@ class _ProjectReportsState extends State<ProjectReports> {
                                 },
                                 child: ReportPreview(
                                     reportSelected:
-                                        _listReportSelected?[index]),
+                                    _listReportSelected?[index]),
                               ),
                             );
                           },
@@ -240,7 +243,7 @@ class _ProjectReportsState extends State<ProjectReports> {
   }
 
   Future<Marker> Function(Cluster<Place>) get _markerBuilder =>
-      (cluster) async {
+          (cluster) async {
         return Marker(
           markerId: MarkerId(cluster.getId()),
           position: cluster.location,

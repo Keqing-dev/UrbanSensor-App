@@ -8,9 +8,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:location/location.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:photo_view/photo_view.dart';
 import 'package:unicons/unicons.dart';
 import 'package:urbansensor/src/models/project.dart';
+import 'package:urbansensor/src/pages/image_viewer.dart';
 import 'package:urbansensor/src/pages/video_viewer.dart';
 import 'package:urbansensor/src/services/api_project.dart';
 import 'package:urbansensor/src/services/api_report.dart';
@@ -20,6 +20,7 @@ import 'package:urbansensor/src/utils/format_date.dart';
 import 'package:urbansensor/src/utils/loading_indicators_c.dart';
 import 'package:urbansensor/src/utils/theme.dart';
 import 'package:urbansensor/src/widgets/button.dart';
+import 'package:urbansensor/src/widgets/cards/project_card.dart';
 import 'package:urbansensor/src/widgets/file_type.dart';
 import 'package:urbansensor/src/widgets/input.dart';
 import 'package:urbansensor/src/widgets/input_search.dart';
@@ -320,6 +321,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
 
   void _createReport() async {
     if (_formKey.currentState!.validate()) {
+      FocusScope.of(context).unfocus();
       setState(() {
         _isLoading = true;
       });
@@ -404,18 +406,8 @@ class _CreateReportPageState extends State<CreateReportPage> {
             showGeneralDialog(
                 context: context,
                 pageBuilder: (context, animation, secondaryAnimation) {
-                  return Scaffold(
-                    backgroundColor: Colors.transparent,
-                    body: GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: PhotoView(
-                        minScale: PhotoViewComputedScale.contained,
-                        maxScale: PhotoViewComputedScale.contained * 10,
-                        imageProvider: FileImage(_image!),
-                      ),
-                    ),
+                  return ImageViewer(
+                    image: _image!,
                   );
                 });
           },
@@ -576,7 +568,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
                     children: [
                       Container(
                         margin: const EdgeInsets.only(
-                            left: 16.0, right: 16.0, bottom: 20.0),
+                            left: 16.0, right: 16.0, bottom: 20.0, top: 20),
                         child: InputSearch(func: (value) {
                           _searchMyProjects(value);
                         }),
@@ -653,21 +645,21 @@ class _CreateReportPageState extends State<CreateReportPage> {
               SliverList(
                 delegate: SliverChildBuilderDelegate((context, index) {
                   return Container(
-                      margin: const EdgeInsets.only(bottom: 16.0),
-                      child: ListTile(
-                        title: Text(projects[index].name!),
-                        subtitle:
-                            Text('${projects[index].reportsCount} Reportes'),
-                        onTap: () {
-                          _projectController.text = projects[index].name!;
-                          setState(() {
-                            _projectId = projects[index].id!;
-                          });
-                          Navigator.of(context).pop();
-                          _apiProject.cleanSearch();
-                          _apiProject.cleanProjects();
-                        },
-                      ));
+                    margin: const EdgeInsets.only(bottom: 16.0),
+                    child: InkWell(
+                        child: ProjectCard(
+                      project: projects[index],
+                      onTap: () {
+                        _projectController.text = projects[index].name!;
+                        setState(() {
+                          _projectId = projects[index].id!;
+                        });
+                        Navigator.of(context).pop();
+                        _apiProject.cleanSearch();
+                        _apiProject.cleanProjects();
+                      },
+                    )),
+                  );
                 }, childCount: projects.length),
               ),
             ],
@@ -826,7 +818,6 @@ class _CreateReportPageState extends State<CreateReportPage> {
   }
 
   void _captureVideo() async {
-    print('VIDEOOO');
     final ImagePicker _picker = ImagePicker();
     Location location = Location();
     bool _serviceEnabled = await location.serviceEnabled();

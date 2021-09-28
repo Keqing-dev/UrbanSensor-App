@@ -170,6 +170,7 @@ class ApiReport {
     ReportRes reportRes = ReportRes.fromJson(json.decode(res.body));
 
     List<Report>? reports = reportRes.content;
+
     _stream.reportsProjectMapSink(reports);
     _stream.reportLoadedSink(true);
 
