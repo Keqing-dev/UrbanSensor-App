@@ -149,8 +149,7 @@ class ApiReport {
     await getReportsByProject(projectId: projectId);
   }
 
-  Future<List<Report>?> getReportsByProjectMap(
-      {required String projectId}) async {
+  Future getReportsByProjectMap({required String projectId}) async {
     final _headersTk = await Api().getHeadersTk();
     _stream.reportLoadedSink(false);
     final res = await http.get(
@@ -161,10 +160,10 @@ class ApiReport {
 
     if (res.statusCode != 200) {
       if (_page == 1) {
-        _stream.reportsProjectSink([]);
+        // _stream.reportsProjectSink([]);
       } else {}
-      _stream.reportLoadedSink(true);
-      return [];
+      _stream.reportsProjectMapStreamC.sink.addError('');
+      return Stream.error({});
     }
 
     ReportRes reportRes = ReportRes.fromJson(json.decode(res.body));

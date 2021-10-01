@@ -53,6 +53,9 @@ class ReportStream {
 
   Stream<bool> get reportLoadedStream => _reportsLoadedStreamController.stream;
 
+  StreamController<List<Report>?> get reportsProjectMapStreamC =>
+      _reportsProjectMapStreamC;
+
   void disposeStream() {
     _reportsStreamC.close();
     _reportsLatestStreamC.close();

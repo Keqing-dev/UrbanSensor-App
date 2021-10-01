@@ -139,7 +139,33 @@ class _ProjectReportsState extends State<ProjectReports> {
                       onCameraMove: _manager.onCameraMove,
                       onCameraIdle: _manager.updateMap);
                 } else if (snapshot.hasError) {
-                  return Icon(Icons.error_outline);
+                  // Navigator.of(context).pop();
+                  return Center(
+                      child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('No posees reportes actuales'),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Material(
+                          color: Palettes.lightBlue,
+                          child: InkWell(
+                            onTap: () => Navigator.of(context).pop(),
+                            child: const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text(
+                                'Volver',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 18),
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
+                  ));
                 } else {
                   return Center(
                     child: SizedBox(
@@ -197,7 +223,7 @@ class _ProjectReportsState extends State<ProjectReports> {
                 },
                 child: Visibility(
                   visible:
-                  _reportSelected == null && _listReportSelected != null,
+                      _reportSelected == null && _listReportSelected != null,
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 0, sigmaY: 0),
                     child: Material(
@@ -220,7 +246,7 @@ class _ProjectReportsState extends State<ProjectReports> {
                                 },
                                 child: ReportPreview(
                                     reportSelected:
-                                    _listReportSelected?[index]),
+                                        _listReportSelected?[index]),
                               ),
                             );
                           },
