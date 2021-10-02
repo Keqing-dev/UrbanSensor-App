@@ -7,6 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:urbansensor/src/models/report.dart';
 import 'package:urbansensor/src/services/api.dart';
 import 'package:urbansensor/src/streams/report_stream.dart';
+import 'package:urbansensor/src/utils/mime_type.dart';
 
 class ApiReport {
   static final ApiReport _instance = ApiReport._();
@@ -206,7 +207,8 @@ class ApiReport {
       'projectId': projectId
     });
 
-    request.files.add(await http.MultipartFile.fromPath('file', path));
+    request.files.add(await http.MultipartFile.fromPath('file', path,
+        contentType: getMimeType(path)));
 
     request.headers.addAll(headersTk);
 

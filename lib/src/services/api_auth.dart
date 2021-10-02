@@ -10,6 +10,7 @@ import 'package:urbansensor/src/models/user.dart';
 import 'package:urbansensor/src/preferences/user_preferences.dart';
 import 'package:urbansensor/src/providers/user_provider.dart';
 import 'package:urbansensor/src/services/api.dart';
+import 'package:urbansensor/src/utils/mime_type.dart';
 
 class ApiAuth {
   Api api = Api();
@@ -67,8 +68,9 @@ class ApiAuth {
     final request = http.MultipartRequest(
         'PATCH', Uri.https(_domain, '/authenticate/avatar'));
 
-    final file =
-        await http.MultipartFile.fromPath('file', '${avatarFile?.path}');
+    final file = await http.MultipartFile.fromPath(
+        'file', '${avatarFile?.path}',
+        contentType: getMimeType(avatarFile!.path));
 
     print(headersTk);
 
