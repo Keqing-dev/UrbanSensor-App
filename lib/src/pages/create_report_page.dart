@@ -46,7 +46,6 @@ class CreateReportPage extends StatefulWidget {
 }
 
 class _CreateReportPageState extends State<CreateReportPage> {
-  bool _isAudio = false;
   File? _file;
   String? _dateTime;
   LatLng? _latLng;
@@ -109,8 +108,6 @@ class _CreateReportPageState extends State<CreateReportPage> {
     _file?.delete();
     _file = null;
     _videoController?.dispose();
-    File? audioFile = File('${widget.audioLocation}');
-    audioFile.delete();
     super.dispose();
   }
 
@@ -125,8 +122,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
           child: _file == null &&
                   _dateTime == null &&
                   _latLng == null &&
-                  _address == null &&
-                  !_isAudio
+                  _address == null
               ? Center(
                   child: LoadingIndicator(
                     indicatorType: Indicator.ballClipRotateMultiple,
@@ -161,19 +157,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
                           content: _address!,
                         ),
                         const SizedBox(height: 16.0),
-                        _video != null
-                            ? _videoPreview()
-                            : _isAudio
-                                ? Row(
-                                    children: [
-                                      const Icon(UniconsLine.clock),
-                                      const SizedBox(width: 20.0),
-                                      Text(
-                                        'Duración: ${widget.recordDuration}s',
-                                      ),
-                                    ],
-                                  )
-                                : _imagePreview(),
+                        _handlePreview(),
                         const SizedBox(height: 16.0),
                         Container(
                           width: double.infinity,
@@ -219,6 +203,25 @@ class _CreateReportPageState extends State<CreateReportPage> {
         );
       }),
     );
+  }
+
+  Widget _handlePreview() {
+    switch (widget.fileType) {
+      case FileType.photo:
+        return _imagePreview();
+      case FileType.video:
+        return _videoPreview();
+      case FileType.mic:
+        return Row(
+          children: [
+            const Icon(UniconsLine.clock),
+            const SizedBox(width: 20.0),
+            Text(
+              'Duración: ${widget.recordDuration}s',
+            ),
+          ],
+        );
+    }
   }
 
   Widget _reportData({required IconData icon, required String content}) {
@@ -288,7 +291,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
                   )
                 : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
+                    children: const [
                       Text("Enviar"),
                       SizedBox(width: 10),
                       Icon(UniconsLine.message),
@@ -312,22 +315,8 @@ class _CreateReportPageState extends State<CreateReportPage> {
         _isLoading = true;
       });
 
-      String path = '';
-
-      switch (widget.fileType) {
-        case FileType.photo:
-          path = _image!.path;
-          break;
-        case FileType.video:
-          path = _video!.path;
-          break;
-        case FileType.mic:
-          path = '${widget.audioLocation}';
-          break;
-      }
-
       bool isCreated = await _apiReport.createReport(
-        path,
+        _file!.path,
         _latLng!.latitude.toString(),
         _latLng!.longitude.toString(),
         _address!,
@@ -772,7 +761,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
 
     if (lostFile != null) {
       file = lostFile;
-    } else {
+    } else if (widget.fileType != FileType.mic) {
       if (await Permission.camera.request().isGranted &&
           await Permission.location.request().isGranted) {
         final ImagePicker _picker = ImagePicker();
@@ -789,10 +778,11 @@ class _CreateReportPageState extends State<CreateReportPage> {
         ));
         return;
       }
+    } else {
+      file = XFile(widget.audioLocation!);
     }
 
-    if (await Permission.camera.request().isGranted &&
-        await Permission.location.request().isGranted) {
+    if (await Permission.location.request().isGranted) {
       LocationData _location = await location.getLocation();
       if (file != null) {
         geo.Placemark placemark = (await geo.placemarkFromCoordinates(
@@ -836,37 +826,5 @@ class _CreateReportPageState extends State<CreateReportPage> {
       ));
       return;
     }
-  }
-
-  void _captureAudio() async {
-    Location location = Location();
-
-    LocationData _location = await location.getLocation();
-
-    geo.Placemark placemark = (await geo.placemarkFromCoordinates(
-      _location.latitude!,
-      _location.longitude!,
-      localeIdentifier: "es_CL",
-    ))
-        .first;
-
-    File audioFile = File('audio_example.aac');
-
-    setState(() {
-      _isAudio = true;
-      _dateTime = FormatDate.dateTime(DateTime.now());
-      _latLng = LatLng(_location.latitude!, _location.longitude!);
-      _address =
-          "${placemark.street}, ${placemark.locality}, ${placemark.administrativeArea}";
-      _kGooglePlex = CameraPosition(
-        target: LatLng(_location.latitude!, _location.longitude!),
-        zoom: 15.8,
-      );
-      _markers.add(Marker(
-        icon: mapMarker!,
-        markerId: MarkerId(_location.toString()),
-        position: LatLng(_location.latitude!, _location.longitude!),
-      ));
-    });
   }
 }
