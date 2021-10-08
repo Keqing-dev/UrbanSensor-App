@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:unicons/unicons.dart';
 import 'package:urbansensor/src/content/dashboard.dart';
@@ -10,8 +11,49 @@ import 'package:urbansensor/src/widgets/expandable_fab.dart';
 import 'package:urbansensor/src/widgets/file_type.dart';
 import 'package:urbansensor/src/widgets/navigators/bottom_navigation_bar.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
+
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  final ImagePicker _picker = ImagePicker();
+
+  @override
+  void initState() {
+    super.initState();
+    _retrieveLostData(context);
+  }
+
+  Future<void> _retrieveLostData(BuildContext context) async {
+    final LostDataResponse response = await _picker.retrieveLostData();
+    if (response.isEmpty) {
+      return;
+    }
+    if (response.file != null) {
+      response.type == RetrieveType.image
+          ? Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CreateReportPage(
+                  fileType: FileType.photo,
+                  lostFile: response.file,
+                ),
+              ),
+            )
+          : Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CreateReportPage(
+                  fileType: FileType.video,
+                  lostFile: response.file,
+                ),
+              ),
+            );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

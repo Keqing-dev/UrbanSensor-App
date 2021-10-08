@@ -68,7 +68,7 @@ class ReportPreview extends StatelessWidget {
                                   alignment: Alignment.center,
                                   placeholder: (context, url) =>
                                       LoadingIndicatorsC.ballScale,
-                                  errorWidget: (_, _1, _2) => Icon(
+                                  errorWidget: (_, __, ___) => Icon(
                                     UniconsLine.image_broken,
                                     color: Palettes.rose,
                                   ),

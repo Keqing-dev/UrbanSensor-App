@@ -25,24 +25,24 @@ import 'package:urbansensor/src/widgets/file_type.dart';
 import 'package:urbansensor/src/widgets/input.dart';
 import 'package:urbansensor/src/widgets/input_search.dart';
 import 'package:urbansensor/src/widgets/navigators/back_app_bar.dart';
-import 'package:urbansensor/src/widgets/snack_bar_c.dart';
 import 'package:video_player/video_player.dart';
 
 class CreateReportPage extends StatefulWidget {
   const CreateReportPage({
     Key? key,
     required this.fileType,
+    this.lostFile,
   }) : super(key: key);
 
   final FileType fileType;
+  final XFile? lostFile;
 
   @override
   State<CreateReportPage> createState() => _CreateReportPageState();
 }
 
 class _CreateReportPageState extends State<CreateReportPage> {
-  File? _image;
-  File? _video;
+  File? _file;
   String? _dateTime;
   LatLng? _latLng;
   String? _address;
@@ -53,12 +53,9 @@ class _CreateReportPageState extends State<CreateReportPage> {
   final Completer<GoogleMapController> _fullMapController = Completer();
   final ApiProject _apiProject = ApiProject();
   final ApiReport _apiReport = ApiReport();
-  ProjectStream _stream = ProjectStream();
-  List<Project>? _projectList;
-  String? _dropdownValue;
+  final ProjectStream _stream = ProjectStream();
 
-  bool _isVideo = false;
-  late VideoPlayerController _videoController;
+  VideoPlayerController? _videoController;
 
   final _formKey = GlobalKey<FormState>();
   final _projectController = TextEditingController();
@@ -70,30 +67,16 @@ class _CreateReportPageState extends State<CreateReportPage> {
   bool _isLoading = false;
   String? _projectId;
 
-  final _debouncer = Debouncer(duration: Duration(milliseconds: 500));
+  final _debouncer = Debouncer(duration: const Duration(milliseconds: 500));
   String _searchValue = '';
   bool _apiSuccess = true;
-  ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    // _compressImage();
     _setCustomMarker();
-    switch (widget.fileType) {
-      case FileType.photo:
-        _capturePhoto();
-        break;
-      case FileType.video:
-        _captureVideo();
-        break;
-      case FileType.mic:
-        break;
-      default:
-        _capturePhoto();
-        break;
-    }
-
+    _retrieveData();
     _scrollController.addListener(() async {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
@@ -112,33 +95,17 @@ class _CreateReportPageState extends State<CreateReportPage> {
     });
   }
 
-  @override
-  void dispose() {
-    _image?.delete();
-    _video?.delete();
-    _video = null;
-    _image = null;
-    _videoController.dispose();
-    print('DISPOSE');
-
-    super.dispose();
+  void _retrieveData() async {
+    _captureData(widget.lostFile);
   }
 
-  // _compressImage() async {
-  //   var filePath = widget.image.absolute.path;
-  //
-  //   final lastIndex = filePath.lastIndexOf(new RegExp(r'.jp'));
-  //   final splitted = filePath.substring(0, (lastIndex));
-  //   final outPath = "${splitted}_out${filePath.substring(lastIndex)}";
-  //
-  //   FlutterImageCompress.compressAndGetFile(widget.image.path, outPath,
-  //           quality: 80 /*, minHeight: height, minWidth: width*/)
-  //       .then((newImage) {
-  //     setState(() {
-  //       compressedImage = newImage;
-  //     });
-  //   });
-  // }
+  @override
+  void dispose() {
+    _file?.delete();
+    _file = null;
+    _videoController?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -148,8 +115,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
       appBar: const BackAppBar(),
       body: Builder(builder: (context) {
         return SafeArea(
-          child: _image == null &&
-                  _video == null &&
+          child: _file == null &&
                   _dateTime == null &&
                   _latLng == null &&
                   _address == null
@@ -187,7 +153,9 @@ class _CreateReportPageState extends State<CreateReportPage> {
                           content: _address!,
                         ),
                         const SizedBox(height: 16.0),
-                        _video != null ? _videoPreview() : _imagePreview(),
+                        widget.fileType == FileType.video
+                            ? _videoPreview()
+                            : _imagePreview(),
                         const SizedBox(height: 16.0),
                         Container(
                           width: double.infinity,
@@ -264,10 +232,10 @@ class _CreateReportPageState extends State<CreateReportPage> {
               _apiProject.getAllMyProjects();
               _projectSearch();
             },
-            validator: _validateObservations,
-            feedback: _observationsFeedback,
+            validator: _validateProject,
+            feedback: _projectFeedback,
           ),
-          SizedBox(height: 32.0),
+          const SizedBox(height: 32.0),
           Input(
             controller: _observationsController,
             label: "Observaciones (Opcional)",
@@ -275,18 +243,18 @@ class _CreateReportPageState extends State<CreateReportPage> {
             height: 112.0,
             maxLines: 5,
             minLines: 5,
-            validator: _validateLabels,
-            feedback: _labelsFeedback,
+            validator: _validateObservations,
+            feedback: _observationsFeedback,
           ),
-          SizedBox(height: 32.0),
+          const SizedBox(height: 32.0),
           Input(
             controller: _labelsController,
             label: "Etiquetas",
             placeholder: "#Etiqueta1 #Etiqueta2",
-            validator: _validateProject,
-            // feedback: _emailFeedback,
+            validator: _validateLabels,
+            feedback: _labelsFeedback,
           ),
-          SizedBox(height: 32.0),
+          const SizedBox(height: 32.0),
           Button(
             fillColor: CustomTheme.lightBlue,
             padding: _isLoading
@@ -302,7 +270,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
                   )
                 : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
+              children: const [
                       Text("Enviar"),
                       SizedBox(width: 10),
                       Icon(UniconsLine.message),
@@ -326,7 +294,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
         _isLoading = true;
       });
       bool isCreated = await _apiReport.createReport(
-        widget.fileType == FileType.video ? _video!.path : _image!.path,
+        _file!.path,
         _latLng!.latitude.toString(),
         _latLng!.longitude.toString(),
         _address!,
@@ -363,16 +331,6 @@ class _CreateReportPageState extends State<CreateReportPage> {
   }
 
   String? _validateObservations(String? value) {
-    // if (value == null || value.isEmpty) {
-    //   setState(() {
-    //     _observationsFeedback = const InputFeedback(label: "Campo Requerido");
-    //   });
-    //   return "";
-    // } else {
-    //   setState(() {
-    //     _observationsFeedback = null;
-    //   });
-    // }
     return null;
   }
 
@@ -407,12 +365,12 @@ class _CreateReportPageState extends State<CreateReportPage> {
                 context: context,
                 pageBuilder: (context, animation, secondaryAnimation) {
                   return ImageViewer(
-                    image: _image!,
+                    image: _file!,
                   );
                 });
           },
           child: Image.file(
-            _image!,
+            _file!,
             fit: BoxFit.fitWidth,
           ),
         ),
@@ -432,7 +390,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
               onTap: () {
                 showGeneralDialog(
                     context: context,
-                    pageBuilder: (_, __, ___) => VideoViewer(file: _video!));
+                    pageBuilder: (_, __, ___) => VideoViewer(file: _file!));
               },
               child: FittedBox(
                 fit: BoxFit.cover,
@@ -441,7 +399,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
                 child: SizedBox(
                   height: 300,
                   width: 300,
-                  child: VideoPlayer(_videoController),
+                  child: VideoPlayer(_videoController!),
                 ),
               ),
             ),
@@ -462,11 +420,11 @@ class _CreateReportPageState extends State<CreateReportPage> {
                 borderRadius: BorderRadius.circular(100),
               ),
               child: FloatingActionButton(
-                backgroundColor: Color.fromRGBO(0, 0, 0, 0.75),
+                backgroundColor: const Color.fromRGBO(0, 0, 0, 0.75),
                 onPressed: () {
                   showGeneralDialog(
                       context: context,
-                      pageBuilder: (_, __, ___) => VideoViewer(file: _video!));
+                      pageBuilder: (_, __, ___) => VideoViewer(file: _file!));
                 },
                 child: const Icon(UniconsLine.play),
               ),
@@ -708,7 +666,6 @@ class _CreateReportPageState extends State<CreateReportPage> {
 
     if (await Permission.location.request().isGranted) {
       _locationData = await location.getLocation();
-      print(_locationData);
       setStateSecondary(() {
         setState(() {
           LatLng latLng =
@@ -767,8 +724,9 @@ class _CreateReportPageState extends State<CreateReportPage> {
         CameraPosition(target: latLng, zoom: 15.8)));
   }
 
-  void _capturePhoto() async {
-    final ImagePicker _picker = ImagePicker();
+  void _captureData(XFile? lostFile) async {
+    XFile? file;
+
     Location location = Location();
 
     bool _serviceEnabled = await location.serviceEnabled();
@@ -779,13 +737,31 @@ class _CreateReportPageState extends State<CreateReportPage> {
       }
     }
 
+    if (lostFile != null) {
+      file = lostFile;
+    } else {
+      if (await Permission.camera.request().isGranted &&
+          await Permission.location.request().isGranted) {
+        final ImagePicker _picker = ImagePicker();
+        file = widget.fileType == FileType.video
+            ? await _picker.pickVideo(
+                source: ImageSource.camera,
+                maxDuration: const Duration(seconds: 10),
+              )
+            : await _picker.pickImage(source: ImageSource.camera);
+      } else {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Debes aceptar los permisos para usar la aplicación'),
+        ));
+        return;
+      }
+    }
+
     if (await Permission.camera.request().isGranted &&
         await Permission.location.request().isGranted) {
-      final XFile? picture =
-          await _picker.pickImage(source: ImageSource.camera);
       LocationData _location = await location.getLocation();
-
-      if (picture != null) {
+      if (file != null) {
         geo.Placemark placemark = (await geo.placemarkFromCoordinates(
           _location.latitude!,
           _location.longitude!,
@@ -793,10 +769,10 @@ class _CreateReportPageState extends State<CreateReportPage> {
         ))
             .first;
 
-        File? imageToCompress = File.fromUri(Uri(path: picture.path));
+        File? fileCaptured = File.fromUri(Uri(path: file.path));
 
         setState(() {
-          _image = imageToCompress;
+          _file = fileCaptured;
           _dateTime = FormatDate.dateTime(DateTime.now());
           _latLng = LatLng(_location.latitude!, _location.longitude!);
           _address =
@@ -810,68 +786,22 @@ class _CreateReportPageState extends State<CreateReportPage> {
             markerId: MarkerId(_location.toString()),
             position: LatLng(_location.latitude!, _location.longitude!),
           ));
+          if (widget.fileType == FileType.video) {
+            _videoController = VideoPlayerController.network(_file!.path)
+              ..initialize().then((_) {
+                setState(() {}); //when your thumbnail will show.
+              });
+          }
         });
       } else {
         Navigator.of(context).pop();
       }
-    }
-  }
-
-  void _captureVideo() async {
-    final ImagePicker _picker = ImagePicker();
-    Location location = Location();
-    bool _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
-        return;
-      }
-    }
-
-    if (await Permission.camera.request().isGranted) {
-      // Capture a video
-      final XFile? video = await _picker.pickVideo(
-          source: ImageSource.camera, maxDuration: const Duration(seconds: 10));
-      if (video == null) {
-        Navigator.of(context).pop();
-      }
-
-      File? videoPreview = File.fromUri(Uri(path: video?.path));
-      LocationData _location = await location.getLocation();
-
-      geo.Placemark placemark = (await geo.placemarkFromCoordinates(
-        _location.latitude!,
-        _location.longitude!,
-        localeIdentifier: "es_CL",
-      ))
-          .first;
-
-      setState(() {
-        _video = videoPreview;
-        _isVideo = true;
-        _dateTime = FormatDate.dateTime(DateTime.now());
-        _latLng = LatLng(_location.latitude!, _location.longitude!);
-        _address =
-            "${placemark.street}, ${placemark.locality}, ${placemark.administrativeArea}";
-        _kGooglePlex = CameraPosition(
-          target: LatLng(_location.latitude!, _location.longitude!),
-          zoom: 15.8,
-        );
-        _markers.add(Marker(
-          icon: mapMarker!,
-          markerId: MarkerId('Yoshida'),
-          position: LatLng(_location.latitude!, _location.longitude!),
-        ));
-      });
-
-      _videoController = VideoPlayerController.network(_video!.path)
-        ..initialize().then((_) {
-          setState(() {}); //when your thumbnail will show.
-        });
     } else {
       Navigator.of(context).pop();
-      SnackBarC.showSnackbar(
-          message: 'Debes aceptar los permisos', context: context);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Debes aceptar los permisos para usar la aplicación'),
+      ));
+      return;
     }
   }
 }
