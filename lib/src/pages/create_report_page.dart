@@ -32,9 +32,13 @@ class CreateReportPage extends StatefulWidget {
   const CreateReportPage({
     Key? key,
     required this.fileType,
+    this.recordDuration,
+    this.audioLocation,
   }) : super(key: key);
 
   final FileType fileType;
+  final String? recordDuration;
+  final String? audioLocation;
 
   @override
   State<CreateReportPage> createState() => _CreateReportPageState();
@@ -43,6 +47,7 @@ class CreateReportPage extends StatefulWidget {
 class _CreateReportPageState extends State<CreateReportPage> {
   File? _image;
   File? _video;
+  bool _isAudio = false;
   String? _dateTime;
   LatLng? _latLng;
   String? _address;
@@ -59,6 +64,8 @@ class _CreateReportPageState extends State<CreateReportPage> {
 
   bool _isVideo = false;
   late VideoPlayerController _videoController;
+
+  //AUDIO
 
   final _formKey = GlobalKey<FormState>();
   final _projectController = TextEditingController();
@@ -88,6 +95,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
         _captureVideo();
         break;
       case FileType.mic:
+        _captureAudio();
         break;
       default:
         _capturePhoto();
@@ -119,6 +127,8 @@ class _CreateReportPageState extends State<CreateReportPage> {
     _video = null;
     _image = null;
     _videoController.dispose();
+    File? audioFile = File('${widget.audioLocation}');
+    audioFile.delete();
     print('DISPOSE');
 
     super.dispose();
@@ -152,7 +162,8 @@ class _CreateReportPageState extends State<CreateReportPage> {
                   _video == null &&
                   _dateTime == null &&
                   _latLng == null &&
-                  _address == null
+                  _address == null &&
+                  !_isAudio
               ? Center(
                   child: LoadingIndicator(
                     indicatorType: Indicator.ballClipRotateMultiple,
@@ -187,7 +198,19 @@ class _CreateReportPageState extends State<CreateReportPage> {
                           content: _address!,
                         ),
                         const SizedBox(height: 16.0),
-                        _video != null ? _videoPreview() : _imagePreview(),
+                        _video != null
+                            ? _videoPreview()
+                            : _isAudio
+                                ? Row(
+                                    children: [
+                                      const Icon(UniconsLine.clock),
+                                      const SizedBox(width: 20.0),
+                                      Text(
+                                        'Duración: ${widget.recordDuration}s',
+                                      ),
+                                    ],
+                                  )
+                                : _imagePreview(),
                         const SizedBox(height: 16.0),
                         Container(
                           width: double.infinity,
@@ -325,8 +348,23 @@ class _CreateReportPageState extends State<CreateReportPage> {
       setState(() {
         _isLoading = true;
       });
+
+      String path = '';
+
+      switch (widget.fileType) {
+        case FileType.photo:
+          path = _image!.path;
+          break;
+        case FileType.video:
+          path = _video!.path;
+          break;
+        case FileType.mic:
+          path = '${widget.audioLocation}';
+          break;
+      }
+
       bool isCreated = await _apiReport.createReport(
-        widget.fileType == FileType.video ? _video!.path : _image!.path,
+        path,
         _latLng!.latitude.toString(),
         _latLng!.longitude.toString(),
         _address!,
@@ -873,5 +911,37 @@ class _CreateReportPageState extends State<CreateReportPage> {
       SnackBarC.showSnackbar(
           message: 'Debes aceptar los permisos', context: context);
     }
+  }
+
+  void _captureAudio() async {
+    Location location = Location();
+
+    LocationData _location = await location.getLocation();
+
+    geo.Placemark placemark = (await geo.placemarkFromCoordinates(
+      _location.latitude!,
+      _location.longitude!,
+      localeIdentifier: "es_CL",
+    ))
+        .first;
+
+    File audioFile = File('audio_example.aac');
+
+    setState(() {
+      _isAudio = true;
+      _dateTime = FormatDate.dateTime(DateTime.now());
+      _latLng = LatLng(_location.latitude!, _location.longitude!);
+      _address =
+          "${placemark.street}, ${placemark.locality}, ${placemark.administrativeArea}";
+      _kGooglePlex = CameraPosition(
+        target: LatLng(_location.latitude!, _location.longitude!),
+        zoom: 15.8,
+      );
+      _markers.add(Marker(
+        icon: mapMarker!,
+        markerId: MarkerId(_location.toString()),
+        position: LatLng(_location.latitude!, _location.longitude!),
+      ));
+    });
   }
 }

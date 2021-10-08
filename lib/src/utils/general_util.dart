@@ -21,4 +21,17 @@ class GeneralUtil {
         return false;
     }
   }
+
+  static bool isAudioFormat(String value) {
+    final videoFormat = value.replaceAllMapped(RegExp('.[^]*\\.'), (_) {
+      return '';
+    });
+    switch (videoFormat.toLowerCase()) {
+      case 'mp3':
+      case 'aac':
+        return true;
+      default:
+        return false;
+    }
+  }
 }

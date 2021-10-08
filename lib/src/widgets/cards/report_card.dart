@@ -59,6 +59,7 @@ class _ReportCardState extends State<ReportCard> {
   @override
   Widget build(BuildContext context) {
     bool isVideo = GeneralUtil.isVideoFormat('${widget.report?.file}');
+    bool isAudio = GeneralUtil.isAudioFormat('${widget.report?.file}');
 
     return Slidable(
       actionPane: const SlidableScrollActionPane(),
@@ -126,10 +127,15 @@ class _ReportCardState extends State<ReportCard> {
                                       UniconsLine.video,
                                       color: Palettes.green2,
                                     )
-                                  : Icon(
-                                      UniconsLine.image,
-                                      color: Palettes.green2,
-                                    ),
+                                  : isAudio
+                                      ? Icon(
+                                          UniconsLine.microphone,
+                                          color: Palettes.green2,
+                                        )
+                                      : Icon(
+                                          UniconsLine.image,
+                                          color: Palettes.green2,
+                                        ),
                             ],
                           ),
                           Text(
