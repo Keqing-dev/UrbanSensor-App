@@ -20,6 +20,7 @@ class ReportPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool isVideo = GeneralUtil.isVideoFormat('${reportSelected?.file}');
+    bool isAudio = GeneralUtil.isAudioFormat('${reportSelected?.file}');
     return Container(
       decoration: const BoxDecoration(
         boxShadow: [
@@ -58,39 +59,58 @@ class ReportPreview extends StatelessWidget {
                                   color: Palettes.lightBlue,
                                 ),
                               )
-                            : ClipRRect(
-                                borderRadius: BorderRadius.circular(100),
-                                child: CachedNetworkImage(
-                                  imageUrl: '${reportSelected?.file}',
-                                  width: 60,
-                                  height: 60,
-                                  fit: BoxFit.cover,
-                                  alignment: Alignment.center,
-                                  placeholder: (context, url) =>
-                                      LoadingIndicatorsC.ballScale,
-                                  errorWidget: (_, __, ___) => Icon(
-                                    UniconsLine.image_broken,
-                                    color: Palettes.rose,
+                            : isAudio
+                                ? Container(
+                                    width: 60,
+                                    height: 60,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(100),
+                                      border: Border.all(
+                                        color: Palettes.lightBlue,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      UniconsLine.microphone,
+                                      color: Palettes.lightBlue,
+                                    ),
+                                  )
+                                : ClipRRect(
+                                    borderRadius: BorderRadius.circular(100),
+                                    child: CachedNetworkImage(
+                                      imageUrl: '${reportSelected?.file}',
+                                      width: 60,
+                                      height: 60,
+                                      fit: BoxFit.cover,
+                                      alignment: Alignment.center,
+                                      placeholder: (context, url) =>
+                                          LoadingIndicatorsC.ballScale,
+                                      errorWidget: (_, _1, _2) => Icon(
+                                        UniconsLine.image_broken,
+                                        color: Palettes.rose,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
                         isVideo
                             ? Container()
-                            : Positioned(
-                                right: 0,
-                                bottom: 0,
-                                child: Container(
-                                  padding: const EdgeInsets.all(5),
-                                  decoration: BoxDecoration(
-                                    color: Palettes.lightBlue,
-                                    borderRadius: BorderRadius.circular(100),
+                            : isAudio
+                                ? Container()
+                                : Positioned(
+                                    right: 0,
+                                    bottom: 0,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(5),
+                                      decoration: BoxDecoration(
+                                        color: Palettes.lightBlue,
+                                        borderRadius:
+                                            BorderRadius.circular(100),
+                                      ),
+                                      child: const Icon(
+                                        UniconsLine.search_plus,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                                   ),
-                                  child: const Icon(
-                                    UniconsLine.search_plus,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
                         Positioned.fill(
                           child: Material(
                             color: Colors.transparent,
@@ -101,7 +121,7 @@ class ReportPreview extends StatelessWidget {
                                   context: context,
                                   pageBuilder: (context, animation,
                                           secondaryAnimation) =>
-                                      isVideo
+                                      isVideo || isAudio
                                           ? VideoViewer(
                                               file: File('null'),
                                               url: reportSelected?.file,

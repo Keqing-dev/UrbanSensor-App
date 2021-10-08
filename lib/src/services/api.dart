@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:urbansensor/src/models/user.dart';
 import 'package:urbansensor/src/preferences/user_preferences.dart';
@@ -55,5 +58,16 @@ class Api {
     ApiAuth apiAuth = ApiAuth();
 
     await apiProject.getLatestProject(context);
+  }
+
+  Future createFeedback(String value) async {
+    final _headersTk = await Api().getHeadersTk();
+
+    final res = await http.post(Uri.parse('$url/feedback'),
+        headers: _headersTk, body: jsonEncode({"observation": value}));
+
+    print('createFeedback() STATUS CODE: ${res.statusCode}');
+
+    return true;
   }
 }

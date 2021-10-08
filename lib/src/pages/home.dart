@@ -71,7 +71,18 @@ class _HomeState extends State<Home> {
       // ),
       floatingActionButton: ExpandableFab(distance: 112.0, children: [
         ActionButton(
-          onPressed: () {},
+          onPressed: () {
+            /*Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const CreateReportPage(
+                  fileType: FileType.mic,
+                ),
+              ),
+            );*/
+
+            Navigator.pushNamed(context, 'record_audio_page');
+          },
           icon: const Icon(UniconsLine.microphone),
         ),
         ActionButton(

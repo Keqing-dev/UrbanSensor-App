@@ -9,6 +9,7 @@ import 'package:urbansensor/src/pages/home.dart';
 import 'package:urbansensor/src/pages/login_page.dart';
 import 'package:urbansensor/src/pages/project_page.dart';
 import 'package:urbansensor/src/pages/project_reports.dart';
+import 'package:urbansensor/src/pages/record_audio_page.dart';
 import 'package:urbansensor/src/pages/register_page.dart';
 import 'package:urbansensor/src/pages/report_page.dart';
 import 'package:urbansensor/src/pages/test_components.dart';
@@ -80,6 +81,8 @@ class MyApp extends StatelessWidget {
           'createProject': (BuildContext context) => const CreateProject(),
           'report': (BuildContext context) => const ReportPage(),
           'projectReports': (BuildContext context) => const ProjectReports(),
+          'record_audio_page': (BuildContext context) =>
+              const RecordAudioPage(),
           'test': (BuildContext context) => const TestComponents(),
           // 'createReport': (BuildContext context) => const CreateReportPage(fileType: FileType.photo,),
         },
