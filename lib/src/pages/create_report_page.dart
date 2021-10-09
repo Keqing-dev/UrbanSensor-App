@@ -105,8 +105,10 @@ class _CreateReportPageState extends State<CreateReportPage> {
 
   @override
   void dispose() {
-    _file?.delete();
-    _file = null;
+    if (widget.audioLocation == null) {
+      _file?.delete();
+      _file = null;
+    }
     _videoController?.dispose();
     super.dispose();
   }
@@ -328,6 +330,11 @@ class _CreateReportPageState extends State<CreateReportPage> {
         _isLoading = false;
       });
       if (isCreated) {
+        if (widget.audioLocation != null) {
+          _file?.delete();
+          _file = null;
+        }
+
         Navigator.of(context)
             .pushNamedAndRemoveUntil("home", (Route<dynamic> route) => false);
       } else {

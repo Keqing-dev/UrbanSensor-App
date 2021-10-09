@@ -4,12 +4,15 @@ import 'package:flutter_sound_lite/flutter_sound.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class SoundRecorder {
-  final pathToSaveAudio = 'audio_example.aac';
+  final _pathToSaveAudio = 'audio_example.aac';
 
   FlutterSoundRecorder? _audioRecorder;
   bool _isRecorderInitialised = false;
 
   bool get isRecording => _audioRecorder!.isRecording;
+
+  get pathToSaveAudio => _pathToSaveAudio;
+
   int _recordDuration = 0;
   Timer? timer;
 
@@ -36,7 +39,7 @@ class SoundRecorder {
   Future _record() async {
     if (!_isRecorderInitialised) return;
     await _audioRecorder!.startRecorder(
-      toFile: pathToSaveAudio,
+      toFile: _pathToSaveAudio,
     );
   }
 
@@ -50,6 +53,10 @@ class SoundRecorder {
       _recordDuration = 0;
       timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
         _recordDuration++;
+        if (_recordDuration > 60) {
+          timer.cancel();
+          await _stop();
+        }
       });
       await _record();
     } else {
@@ -61,6 +68,6 @@ class SoundRecorder {
   int get recordDuration => _recordDuration;
 
   Future<String?> getFileUrl() async {
-    return await _audioRecorder!.getRecordURL(path: pathToSaveAudio);
+    return await _audioRecorder!.getRecordURL(path: _pathToSaveAudio);
   }
 }
