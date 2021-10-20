@@ -28,7 +28,7 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
   bool isPlaying = false;
 
   //timer
-  int maxRecTimeInMinute = 1;
+  int maxRecTimeInMinute = 60;
   double percent = 0;
   int timeInSegCounter = 0;
 
@@ -64,7 +64,10 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _timer(),
+                Flexible(
+                  flex: 1,
+                  child: _timer(),
+                ),
                 Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 70, vertical: 40),
@@ -161,7 +164,7 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
               left: 0,
               right: 0,
               child: Text(
-                'Puedes grabar un 1 minuto de audio.',
+                'Puedes grabar un 1 hora de audio.',
                 textAlign: TextAlign.center,
               ),
             ),
@@ -176,7 +179,7 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
       percent: percent,
       animation: true,
       animateFromLastPercent: true,
-      radius: 250.0,
+      radius: 250,
       lineWidth: 20,
       curve: Curves.linear,
       arcType: ArcType.FULL,
@@ -190,7 +193,7 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
             style: const TextStyle(fontSize: 50),
           ),
           Text(
-            '$timeInMinute,$timeInSeg seg',
+            '$timeInMinute:$timeInSeg mm:ss',
             style: const TextStyle(fontSize: 20),
           ),
         ],
@@ -211,7 +214,7 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
       });
       timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
         if (conditional &&
-            timeInMinute < 2 &&
+            timeInMinute < 60 &&
             timeInSegCounter < recorder.recordDuration) {
           setState(() {
             timeInSeg++;

@@ -53,7 +53,7 @@ class SoundRecorder {
       _recordDuration = 0;
       timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
         _recordDuration++;
-        if (_recordDuration > 60) {
+        if (_recordDuration > 3600) {
           timer.cancel();
           await _stop();
         }
