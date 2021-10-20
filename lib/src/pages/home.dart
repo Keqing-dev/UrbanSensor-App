@@ -126,7 +126,6 @@ class _HomeState extends State<Home> {
       case 1:
         return const ProjectsPage();
       case 2:
-      case 3:
         return const MenuPage();
       default:
         return const Dashboard();

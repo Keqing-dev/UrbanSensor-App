@@ -31,8 +31,6 @@ class BottomNavigationBarC extends StatelessWidget {
             BottomNavigationBarItem(
                 icon: Icon(UniconsLine.folder), label: 'Proyectos'),
             BottomNavigationBarItem(
-                icon: Icon(UniconsLine.map_marker), label: 'Reportes'),
-            BottomNavigationBarItem(
                 icon: Icon(UniconsLine.bars), label: 'Menu'),
           ],
         ),
