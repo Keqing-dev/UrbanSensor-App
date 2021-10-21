@@ -60,7 +60,7 @@ class _ProfileInfoState extends State<ProfileInfo> {
             child: InkWell(
               borderRadius: BorderRadius.circular(100),
               onTap: () async {
-                bool uploaded = await uploadFile(context, apiAuth);
+                await uploadFile(context, apiAuth);
               },
               child: Padding(
                 padding: const EdgeInsets.all(5),
@@ -78,18 +78,25 @@ class _ProfileInfoState extends State<ProfileInfo> {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(100),
-                    child: CachedNetworkImage(
-                      imageUrl: user?.avatar != null
-                          ? '${user?.avatar}'
-                          : 'https://thispersondoesnotexist.com/image',
-                      errorWidget: (context, url, error) => const Text('Error'),
-                      placeholder: (context, url) =>
-                          LoadingIndicatorsC.ballScale,
-                      height: 100,
-                      width: 100,
-                      fit: BoxFit.cover,
-                      alignment: Alignment.center,
-                    ),
+                    child: user?.avatar != null
+                        ? CachedNetworkImage(
+                            imageUrl: user!.avatar!,
+                            errorWidget: (context, url, error) =>
+                                const Text('Error'),
+                            placeholder: (context, url) =>
+                                LoadingIndicatorsC.ballScale,
+                            height: 100,
+                            width: 100,
+                            fit: BoxFit.cover,
+                            alignment: Alignment.center,
+                          )
+                        : Image.asset(
+                            'assets/img/anid.png',
+                            height: 100,
+                            width: 100,
+                            fit: BoxFit.cover,
+                            alignment: Alignment.center,
+                          ),
                   ),
                   Expanded(
                     child: Padding(

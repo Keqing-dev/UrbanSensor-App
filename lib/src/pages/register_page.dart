@@ -70,7 +70,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           Input(
                             controller: _nameController,
                             label: "Nombre",
-                            placeholder: "Kaguya",
+                            placeholder: "Ej.: Juan",
                             validator: (value) => _validateField(
                               value,
                               () {
@@ -93,7 +93,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           Input(
                             controller: _lastNameController,
                             label: "Apellido",
-                            placeholder: "Shinomiya",
+                            placeholder: "Ej.: Valdés",
                             validator: (value) => _validateField(
                               value,
                               () {
@@ -116,7 +116,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           Input(
                             controller: _professionController,
                             label: "Profesión",
-                            placeholder: "Geólogo",
+                            placeholder: "Ej.: Geólogo",
                             validator: (value) => _validateField(
                               value,
                               () {
@@ -222,9 +222,16 @@ class _RegisterPageState extends State<RegisterPage> {
                       fillColor: const Color.fromRGBO(155, 81, 224, 1.0),
                     ),
                     const SizedBox(height: 32.0),
-                    Image.asset("assets/img/ua.png"),
-                    const SizedBox(height: 32.0),
-                    Image.asset("assets/img/fondecyt.png"),
+                    SizedBox(
+                      height: 200,
+                      width: 200,
+                      child: Image.asset("assets/img/anid.png"),
+                    ),
+                    Text(
+                      'FONDECYT 3200381',
+                      style: theme.textTheme.bodyText1!
+                          .copyWith(fontWeight: FontWeight.w600, color: CustomTheme.gray3),
+                    ),
                   ],
                 ),
               ),

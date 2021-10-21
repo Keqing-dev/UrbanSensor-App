@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:unicons/unicons.dart';
 import 'package:urbansensor/src/services/api_auth.dart';
+import 'package:urbansensor/src/utils/theme.dart';
 import 'package:urbansensor/src/widgets/button.dart';
 import 'package:urbansensor/src/widgets/input.dart';
 import 'package:validators/validators.dart' as validator;
@@ -56,10 +57,6 @@ class _LoginPageState extends State<LoginPage> {
                           style: theme.textTheme.headline4!
                               .copyWith(fontWeight: FontWeight.w700),
                         ),
-                        Text(
-                          "Prototipo Universidad Autónoma de Chile",
-                          style: theme.textTheme.caption,
-                        ),
                       ],
                     ),
                     const SizedBox(height: 64.0),
@@ -112,20 +109,6 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 32.0),
                     Button(
-                      content: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset("assets/img/google.png"),
-                          const SizedBox(width: 24.0),
-                          const Text("Acceder con Google")
-                        ],
-                      ),
-                      onPressed: isLoading ? null : () {},
-                      fillColor: Colors.white,
-                      textColor: Colors.black54,
-                    ),
-                    const SizedBox(height: 32.0),
-                    Button(
                       content: const Text("Crea tu Cuenta"),
                       onPressed: isLoading
                           ? null
@@ -137,9 +120,16 @@ class _LoginPageState extends State<LoginPage> {
                       fillColor: const Color.fromRGBO(155, 81, 224, 1.0),
                     ),
                     const SizedBox(height: 32.0),
-                    Image.asset("assets/img/ua.png"),
-                    const SizedBox(height: 32.0),
-                    Image.asset("assets/img/fondecyt.png"),
+                    SizedBox(
+                      height: 200,
+                      width: 200,
+                      child: Image.asset("assets/img/anid.png"),
+                    ),
+                    Text(
+                      'FONDECYT 3200381',
+                      style: theme.textTheme.bodyText1!
+                          .copyWith(fontWeight: FontWeight.w600, color: CustomTheme.gray3),
+                    ),
                   ],
                 ),
               ),
