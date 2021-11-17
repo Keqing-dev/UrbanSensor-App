@@ -1,6 +1,8 @@
 # UrbanSensor
 
 A new Flutter project.
+### Build And Realease
+https://docs.flutter.dev/deployment/android
 
 ## Getting Started
 
